@@ -2,7 +2,15 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
-$trainers = $pdo->query('SELECT * FROM trainers ORDER BY trainer_id DESC')->fetchAll();
+// history_count so the UI only offers a hard Delete when it's safe. Availability slots are just
+// disposable schedule config (they cascade away harmlessly); classes/bookings are real assignments
+// and history, so a trainer who has ever been assigned one must be Deactivated instead (SRS 3.1).
+$trainers = $pdo->query(
+    'SELECT t.*,
+        (SELECT COUNT(*) FROM classes WHERE trainer_id = t.trainer_id) +
+        (SELECT COUNT(*) FROM bookings WHERE trainer_id = t.trainer_id) AS history_count
+     FROM trainers t ORDER BY t.trainer_id DESC'
+)->fetchAll();
 
 $pageTitle = 'Trainers & Schedule Management';
 $pageSubtitle = 'Credentials, specializations, working-hours availability and class assignments (FR-06, FR-08, FR-09, FR-10, UC-05, UC-06)';
@@ -29,10 +37,16 @@ require __DIR__ . '/../../includes/layout_start.php';
         <div class="space-x-3">
           <a href="<?= e(base_url('modules/trainers/availability.php?trainer_id=' . $t['trainer_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-xs font-bold">Availability</a>
           <a href="<?= e(base_url('modules/trainers/edit.php?id=' . $t['trainer_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-xs font-bold">Edit</a>
+          <?php if ($t['user_id']): ?>
+            <a href="<?= e(base_url('modules/trainers/reset_password.php?id=' . $t['trainer_id'])) ?>" onclick="return confirm('Reset this trainer\'s password? A new temporary password will be generated.')" class="text-indigo-500 hover:text-indigo-700 text-xs font-bold">Reset Password</a>
+          <?php endif; ?>
           <?php if ($t['status'] === 'active'): ?>
-            <?= delete_link(base_url('modules/trainers/delete.php?id=' . $t['trainer_id']), 'Deactivate this trainer? (history preserved)') ?>
+            <?= delete_link(base_url('modules/trainers/delete.php?id=' . $t['trainer_id']), 'Deactivate this trainer? (history preserved)', 'Deactivate') ?>
           <?php else: ?>
             <a href="<?= e(base_url('modules/trainers/delete.php?id=' . $t['trainer_id'] . '&reactivate=1')) ?>" class="text-emerald-600 hover:text-emerald-700 text-xs font-bold">Reactivate</a>
+          <?php endif; ?>
+          <?php if ((int) $t['history_count'] === 0): ?>
+            <?= delete_link(base_url('modules/trainers/hard_delete.php?id=' . $t['trainer_id']), 'Permanently delete this trainer? This cannot be undone (only allowed because they have no classes or bookings yet).', 'Delete') ?>
           <?php endif; ?>
         </div>
       </div>

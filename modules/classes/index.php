@@ -42,7 +42,7 @@ require __DIR__ . '/../../includes/layout_start.php';
         <div class="space-x-3">
           <a href="<?= e(base_url('modules/classes/edit.php?id=' . $c['class_id'])) ?>" class="text-slate-500 hover:text-teal-600">Edit</a>
           <?php if ($c['status'] === 'scheduled'): ?>
-            <?= delete_link(base_url('modules/classes/cancel.php?id=' . $c['class_id']), 'Cancel this class?') ?>
+            <?= delete_link(base_url('modules/classes/cancel.php?id=' . $c['class_id']), 'Cancel this class?', 'Cancel') ?>
           <?php endif; ?>
         </div>
       </div>

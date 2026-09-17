@@ -70,10 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="min-h-screen grid lg:grid-cols-2 bg-white">
   <div class="flex items-center justify-center p-8">
     <div class="w-full max-w-sm">
-      <div class="flex items-center gap-3 mb-8">
+      <a href="<?= e(base_url('public/index.php')) ?>" class="inline-flex items-center gap-1.5 text-slate-500 hover:text-teal-600 text-sm font-semibold mb-6">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+        Back to homepage
+      </a>
+      <a href="<?= e(base_url('public/index.php')) ?>" class="flex items-center gap-3 mb-8">
         <span class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-teal-600 to-teal-400 flex items-center justify-center text-white font-extrabold">FC</span>
         <span class="font-extrabold text-lg">Fit<span class="text-teal-600">Core</span></span>
-      </div>
+      </a>
       <h1 class="text-2xl font-extrabold mb-1">Welcome back</h1>
       <p class="text-slate-500 text-sm mb-6">Sign in to your FitCore portal</p>
 
@@ -104,7 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         Note (BR-03 / BR-17): cleaners, receptionists and maintenance staff do not receive login accounts &mdash;
         their records are managed directly by the Admin.
       </p>
-      <p class="text-xs text-slate-400 mt-3">Demo admin: <b>admin@fitcore.lk</b> / <b>Admin@123</b></p>
     </div>
   </div>
   <div class="hidden lg:flex items-center justify-center bg-[#0F172A] relative overflow-hidden">

@@ -2,7 +2,14 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
-$employees = $pdo->query('SELECT * FROM employees ORDER BY employee_id DESC')->fetchAll();
+// history_count so the UI only offers a hard Delete when it's safe - an employee with
+// attendance/leave records is real HR history and must be Deactivated instead (SRS 3.1).
+$employees = $pdo->query(
+    'SELECT e.*,
+        (SELECT COUNT(*) FROM employee_attendance WHERE employee_id = e.employee_id) +
+        (SELECT COUNT(*) FROM employee_leave WHERE employee_id = e.employee_id) AS history_count
+     FROM employees e ORDER BY e.employee_id DESC'
+)->fetchAll();
 $total = count($employees);
 $active = count(array_filter($employees, fn($e) => $e['status'] === 'active'));
 $onLeave = count(array_filter($employees, fn($e) => $e['status'] === 'on_leave'));
@@ -51,9 +58,12 @@ require __DIR__ . '/../../includes/layout_start.php';
           <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
             <a href="<?= e(base_url('modules/employees/edit.php?id=' . $emp['employee_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-sm font-bold">Edit</a>
             <?php if ($emp['status'] !== 'inactive'): ?>
-              <?= delete_link(base_url('modules/employees/delete.php?id=' . $emp['employee_id']), 'Mark this employee inactive?') ?>
+              <?= delete_link(base_url('modules/employees/delete.php?id=' . $emp['employee_id']), 'Mark this employee inactive?', 'Deactivate') ?>
             <?php else: ?>
               <a href="<?= e(base_url('modules/employees/delete.php?id=' . $emp['employee_id'] . '&reactivate=1')) ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-bold">Reactivate</a>
+            <?php endif; ?>
+            <?php if ((int) $emp['history_count'] === 0): ?>
+              <?= delete_link(base_url('modules/employees/hard_delete.php?id=' . $emp['employee_id']), 'Permanently delete this employee? This cannot be undone (only allowed because they have no attendance or leave history yet).', 'Delete') ?>
             <?php endif; ?>
           </td>
         </tr>

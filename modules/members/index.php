@@ -4,8 +4,14 @@ require_role(['admin']);
 
 $statusFilter = $_GET['status'] ?? 'all';
 
-// Pull each member with their latest subscription so we can compute BR-04 "Expiring Soon" at read time.
-$sql = "SELECT m.*, s.expiry_date, s.status AS sub_status
+// Pull each member with their latest subscription so we can compute BR-04 "Expiring Soon" at read time,
+// plus a history_count so the UI only offers a hard Delete when it's actually safe (3.1: don't destroy
+// historical records - a member with subscriptions/payments/bookings/attendance can only be deactivated).
+$sql = "SELECT m.*, s.expiry_date, s.status AS sub_status,
+        (SELECT COUNT(*) FROM subscriptions WHERE member_id = m.member_id) +
+        (SELECT COUNT(*) FROM payments WHERE member_id = m.member_id) +
+        (SELECT COUNT(*) FROM bookings WHERE member_id = m.member_id) +
+        (SELECT COUNT(*) FROM member_attendance WHERE member_id = m.member_id) AS history_count
         FROM members m
         LEFT JOIN (
             SELECT s1.* FROM subscriptions s1
@@ -84,10 +90,16 @@ require __DIR__ . '/../../includes/layout_start.php';
           </td>
           <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
             <a href="<?= e(base_url('modules/members/edit.php?id=' . $m['member_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-sm font-bold">Edit</a>
+            <?php if ($m['user_id']): ?>
+              <a href="<?= e(base_url('modules/members/reset_password.php?id=' . $m['member_id'])) ?>" onclick="return confirm('Reset this member\'s password? A new temporary password will be generated.')" class="text-indigo-500 hover:text-indigo-700 text-sm font-bold">Reset Password</a>
+            <?php endif; ?>
             <?php if ($m['account_status'] === 'active'): ?>
-              <?= delete_link(base_url('modules/members/delete.php?id=' . $m['member_id']), 'Deactivate this member account?') ?>
+              <?= delete_link(base_url('modules/members/delete.php?id=' . $m['member_id']), 'Deactivate this member account?', 'Deactivate') ?>
             <?php else: ?>
               <a href="<?= e(base_url('modules/members/delete.php?id=' . $m['member_id'] . '&reactivate=1')) ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-bold">Reactivate</a>
+            <?php endif; ?>
+            <?php if ((int) $m['history_count'] === 0): ?>
+              <?= delete_link(base_url('modules/members/hard_delete.php?id=' . $m['member_id']), 'Permanently delete this member? This cannot be undone (only allowed because they have no subscriptions, payments, bookings or attendance yet).', 'Delete') ?>
             <?php endif; ?>
           </td>
         </tr>
