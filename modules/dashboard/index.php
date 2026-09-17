@@ -12,6 +12,8 @@ $equipReady = (int) $pdo->query("SELECT COUNT(*) FROM equipment WHERE status='av
 $equipPct = $equipTotal > 0 ? round($equipReady / $equipTotal * 100, 1) : 0;
 $monthlyGrowth = (int) $pdo->query("SELECT COUNT(*) FROM members WHERE join_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01')")->fetchColumn();
 
+
+
 // Last 6 months revenue + new-member trend for the chart.
 $months = [];
 $revenueSeries = [];
