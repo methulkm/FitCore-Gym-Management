@@ -1,0 +1,13 @@
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Uploaded payment slips are user-generated at runtime, not source code.
+# Keep the folder in git (via .gitkeep) but ignore its contents.
+assets/uploads/slips/*
+!assets/uploads/slips/.gitkeep
