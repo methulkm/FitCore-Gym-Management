@@ -8,7 +8,7 @@ $stmt->execute([$id]);
 $employee = $stmt->fetch();
 if (!$employee) redirect_with_flash('modules/employees/index.php', 'error', 'Employee not found.');
 
-// Never trust the list page's flag alone - re-check server-side before allowing a real DELETE.
+// Never trust the list page's flag alone - re-check server-side before allowing a real DELETE.sa25610211
 $countStmt = $pdo->prepare(
     'SELECT
         (SELECT COUNT(*) FROM employee_attendance WHERE employee_id = :id1) +

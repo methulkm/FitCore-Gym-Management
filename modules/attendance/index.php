@@ -12,6 +12,8 @@ $leaves = $pdo->query("SELECT l.*, e.full_name, e.employee_code FROM employee_le
                         JOIN employees e ON e.employee_id = l.employee_id
                         ORDER BY l.leave_id DESC LIMIT 15")->fetchAll();
 
+
+
 $pendingLeave = count(array_filter($leaves, fn($l) => $l['status'] === 'pending'));
 
 $pageTitle = 'Staff Attendance & Leave';
