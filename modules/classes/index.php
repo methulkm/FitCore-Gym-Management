@@ -16,6 +16,8 @@ $headerActions = btn('+ Add Class', base_url('modules/classes/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
+
+
 <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
   <?php foreach ($classes as $c):
     $pct = $c['capacity'] > 0 ? min(100, round($c['booked_count'] / $c['capacity'] * 100)) : 0;
