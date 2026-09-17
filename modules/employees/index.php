@@ -9,6 +9,7 @@ $employees = $pdo->query(
         (SELECT COUNT(*) FROM employee_attendance WHERE employee_id = e.employee_id) +
         (SELECT COUNT(*) FROM employee_leave WHERE employee_id = e.employee_id) AS history_count
      FROM employees e ORDER BY e.employee_id DESC'
+
 )->fetchAll();
 $total = count($employees);
 $active = count(array_filter($employees, fn($e) => $e['status'] === 'active'));
@@ -21,6 +22,7 @@ $ownerTag = 'Hasith';
 $headerActions = btn('+ Add Employee', base_url('modules/employees/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
+
 
 <div class="rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-medium px-4 py-3">
   Rule BR-03 / BR-17: cleaners, receptionists and maintenance technicians do <b>not</b> receive system login accounts &mdash; only Admin manages their records here.
