@@ -14,6 +14,8 @@ $headerActions = btn('+ Add Equipment', base_url('modules/equipment/create.php')
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
+
+
 <div class="grid grid-cols-3 gap-4">
   <?= kpi_card('Total Equipment', (string) count($equipment)) ?>
   <?= kpi_card('Available', (string) $available, '', 'text-emerald-600') ?>
