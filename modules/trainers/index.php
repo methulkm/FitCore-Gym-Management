@@ -20,6 +20,8 @@ $headerActions = btn('+ Add Trainer', base_url('modules/trainers/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
+
+
 <div class="grid md:grid-cols-3 gap-5">
   <?php foreach ($trainers as $t): ?>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
