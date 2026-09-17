@@ -8,10 +8,12 @@ $sql = "SELECT p.*, m.full_name, m.member_code, pl.plan_name, pl.duration_months
         JOIN members m ON m.member_id = p.member_id
         JOIN membership_plans pl ON pl.plan_id = p.plan_id";
 $params = [];
+
 if ($statusFilter !== 'all') {
     $sql .= ' WHERE p.status = ?';
     $params[] = $statusFilter;
 }
+
 $sql .= ' ORDER BY p.payment_id DESC';
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
