@@ -7,6 +7,7 @@ $statusFilter = $_GET['status'] ?? 'all';
 // Pull each member with their latest subscription so we can compute BR-04 "Expiring Soon" at read time,
 // plus a history_count so the UI only offers a hard Delete when it's actually safe (3.1: don't destroy
 // historical records - a member with subscriptions/payments/bookings/attendance can only be deactivated).
+
 $sql = "SELECT m.*, s.expiry_date, s.status AS sub_status,
         (SELECT COUNT(*) FROM subscriptions WHERE member_id = m.member_id) +
         (SELECT COUNT(*) FROM payments WHERE member_id = m.member_id) +
