@@ -79,7 +79,7 @@ function render_sidebar(string $active): void {
         $groups = array_slice($groups, 0, 1);
     }
     ?>
-    <aside class="w-[260px] shrink-0 bg-white border-r border-slate-200 min-h-screen flex flex-col">
+    <aside id="app-sidebar" class="w-[260px] shrink-0 bg-white border-r border-slate-200 min-h-screen flex flex-col">
         <div class="px-6 py-5 border-b border-slate-100">
             <a href="<?= e(base_url('public/index.php')) ?>" class="flex items-center gap-3">
                 <span class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-teal-600 to-teal-400 flex items-center justify-center text-white font-extrabold">FC</span>

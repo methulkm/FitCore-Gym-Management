@@ -3,7 +3,8 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
 $sql = "SELECT c.*, t.full_name AS trainer_name,
-        (SELECT COUNT(*) FROM bookings b WHERE b.class_id = c.class_id AND b.status = 'booked') AS booked_count
+        (SELECT COUNT(*) FROM bookings b WHERE b.class_id = c.class_id AND b.status = 'booked') AS booked_count,
+        (SELECT COUNT(*) FROM bookings b WHERE b.class_id = c.class_id) AS history_count
         FROM classes c JOIN trainers t ON t.trainer_id = c.trainer_id
         ORDER BY c.class_date, c.start_time";
 $classes = $pdo->query($sql)->fetchAll();
@@ -45,6 +46,11 @@ require __DIR__ . '/../../includes/layout_start.php';
           <a href="<?= e(base_url('modules/classes/edit.php?id=' . $c['class_id'])) ?>" class="text-slate-500 hover:text-teal-600">Edit</a>
           <?php if ($c['status'] === 'scheduled'): ?>
             <?= delete_link(base_url('modules/classes/cancel.php?id=' . $c['class_id']), 'Cancel this class?', 'Cancel') ?>
+          <?php endif; ?>
+          <?php if ((int) $c['history_count'] === 0): ?>
+            <?= delete_link(base_url('modules/classes/hard_delete.php?id=' . $c['class_id']), 'Permanently delete this class? This cannot be undone (allowed only because nobody has booked it).', 'Delete') ?>
+          <?php else: ?>
+            <?= delete_disabled('Has ' . (int) $c['history_count'] . ' booking(s) - use Cancel instead so booking history is kept') ?>
           <?php endif; ?>
         </div>
       </div>

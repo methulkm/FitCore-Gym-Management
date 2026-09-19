@@ -28,7 +28,7 @@ require_once __DIR__ . '/sidebar.php';
 </script>
 <style> body { font-family: 'Plus Jakarta Sans', Inter, sans-serif; } </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
+<body class="bg-slate-50 text-slate-900" data-ajax-scope="<?= e(base_url('modules/')) ?>">
 <div class="flex min-h-screen">
     <?php render_sidebar($activeNav ?? ''); ?>
     <div class="flex-1 flex flex-col min-w-0">
@@ -37,7 +37,7 @@ require_once __DIR__ . '/sidebar.php';
                 <input type="text" placeholder="Search members, payments, trainers, equipment..." class="w-full bg-slate-100 rounded-[10px] px-4 py-2.5 text-sm text-slate-500 focus:outline-none">
             </div>
         </header>
-        <main class="flex-1 p-8 space-y-6">
+        <main id="app-content" class="flex-1 p-8 space-y-6">
             <?php if ($msg = flash('success')): ?>
                 <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium px-4 py-3"><?= e($msg) ?></div>
             <?php endif; ?>

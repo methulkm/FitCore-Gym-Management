@@ -2,7 +2,11 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
-$equipment = $pdo->query('SELECT * FROM equipment ORDER BY equipment_id DESC')->fetchAll();
+// history_count: Delete is only offered when there is no maintenance history to lose (it cascades).
+$equipment = $pdo->query(
+    'SELECT q.*, (SELECT COUNT(*) FROM equipment_maintenance WHERE equipment_id = q.equipment_id) AS history_count
+     FROM equipment q ORDER BY q.equipment_id DESC'
+)->fetchAll();
 $available = count(array_filter($equipment, fn($e) => $e['status'] === 'available'));
 $maintenance = count(array_filter($equipment, fn($e) => $e['status'] === 'under_maintenance'));
 
@@ -46,6 +50,11 @@ require __DIR__ . '/../../includes/layout_start.php';
           <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
             <a href="<?= e(base_url('modules/equipment/maintenance.php?equipment_id=' . $eq['equipment_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-sm font-bold">Maintenance</a>
             <a href="<?= e(base_url('modules/equipment/edit.php?id=' . $eq['equipment_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-sm font-bold">Edit</a>
+            <?php if ((int) $eq['history_count'] === 0): ?>
+              <?= delete_link(base_url('modules/equipment/hard_delete.php?id=' . $eq['equipment_id']), 'Permanently delete this equipment? This cannot be undone (allowed only because it has no maintenance history).', 'Delete') ?>
+            <?php else: ?>
+              <?= delete_disabled('Has ' . (int) $eq['history_count'] . ' maintenance record(s) - set status to Out of Service instead') ?>
+            <?php endif; ?>
           </td>
         </tr>
       <?php endforeach; ?>

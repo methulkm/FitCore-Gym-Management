@@ -31,6 +31,11 @@ function btn(string $label, string $href, string $variant = 'primary', string $e
     return '<a href="' . e($href) . '" ' . $extra . ' class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] text-sm font-bold transition ' . $cls . '">' . e($label) . '</a>';
 }
 
+// Greyed-out Delete with a tooltip explaining WHY it's blocked (record has history), so the rule is visible in the UI.
+function delete_disabled(string $reason, string $label = 'Delete'): string {
+    return '<span title="' . e($reason) . '" class="text-slate-300 cursor-not-allowed text-sm font-bold">' . e($label) . '</span>';
+}
+
 function delete_link(string $href, string $confirmMsg = 'Are you sure?', string $label = 'Delete'): string {
     return '<a href="' . e($href) . '" onclick="return confirm(' . htmlspecialchars(json_encode($confirmMsg), ENT_QUOTES) . ')" class="text-rose-500 hover:text-rose-700 text-sm font-bold">' . e($label) . '</a>';
 }

@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
-$sql = "SELECT s.*, m.full_name, m.member_code, p.plan_name, p.duration_months
+$sql = "SELECT s.*, m.full_name, m.member_code, p.plan_name, p.duration_months,
+        (SELECT COUNT(*) FROM payments pay WHERE pay.subscription_id = s.subscription_id) AS history_count
         FROM subscriptions s
         JOIN members m ON m.member_id = s.member_id
         JOIN membership_plans p ON p.plan_id = s.plan_id
@@ -26,7 +27,7 @@ require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
         <th class="text-left font-bold px-5 py-3">Start Date</th>
         <th class="text-left font-bold px-5 py-3">Expiry Date</th>
         <th class="text-left font-bold px-5 py-3">Status</th>
-        <th class="text-right font-bold px-5 py-3">Renewal Action</th>
+        <th class="text-right font-bold px-5 py-3">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100">
@@ -43,7 +44,12 @@ require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
           <td class="px-5 py-3 text-slate-600 font-medium"><?= e(date('d M Y', strtotime($s['start_date']))) ?></td>
           <td class="px-5 py-3 text-slate-900 font-bold"><?= e(date('d M Y', strtotime($s['expiry_date']))) ?></td>
           <td class="px-5 py-3"><?= status_badge($dispLabel, $tone) ?></td>
-          <td class="px-5 py-3 text-right">
+          <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
+            <?php if ((int) $s['history_count'] === 0): ?>
+              <?= delete_link(base_url('modules/subscriptions/hard_delete.php?id=' . $s['subscription_id']), 'Delete this subscription for ' . $s['full_name'] . '? The member will lose this membership record. This cannot be undone.', 'Delete') ?>
+            <?php else: ?>
+              <?= delete_disabled('Linked to a verified payment - cannot be deleted (BR-08)') ?>
+            <?php endif; ?>
             <?php if ($dispKey === 'expiring_soon' || $dispKey === 'active'): ?>
               <a href="<?= e(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id'])) ?>"
                  onclick="return confirm('Renew: extends from current expiry date since membership is still active (BR-09).')"

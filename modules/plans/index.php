@@ -3,7 +3,13 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
 //retrive current plans from the database
-$plans = $pdo->query('SELECT * FROM membership_plans ORDER BY duration_months ASC')->fetchAll();
+// history_count: Delete is only offered when no subscription/payment references the plan (BR-06).
+$plans = $pdo->query(
+    'SELECT p.*,
+        (SELECT COUNT(*) FROM subscriptions WHERE plan_id = p.plan_id) +
+        (SELECT COUNT(*) FROM payments WHERE plan_id = p.plan_id) AS history_count
+     FROM membership_plans p ORDER BY p.duration_months ASC'
+)->fetchAll();
 
 $pageTitle = 'Membership Plans';
 $pageSubtitle = 'Manage 1, 3, 6, and 12-month tier plans, pricing and benefits (FR-13, BR-05, BR-06, UC-10)';
@@ -37,12 +43,17 @@ require __DIR__ . '/../../includes/layout_start.php';
       <?php if ($p['status'] === 'deactivated'): ?>
         <p class="text-xs font-bold mb-2 <?= $featured ? 'text-white/80' : 'text-rose-500' ?>">Deactivated</p>
       <?php endif; ?>
-      <div class="flex items-center justify-between pt-3 border-t <?= $featured ? 'border-white/20' : 'border-slate-100' ?>">
+      <div class="flex items-center justify-between gap-2 pt-3 border-t <?= $featured ? 'border-white/20' : 'border-slate-100' ?>">
         <a href="<?= e(base_url('modules/plans/edit.php?id=' . $p['plan_id'])) ?>" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-slate-600 hover:text-teal-600' ?>">Edit</a>
         <?php if ($p['status'] === 'active'): ?>
-          <a href="<?= e(base_url('modules/plans/delete.php?id=' . $p['plan_id'])) ?>" onclick="return confirm('Deactivate this plan? (kept for historical subscriptions - BR-06)')" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-rose-500' ?>">Deactivate</a>
+          <a href="<?= e(base_url('modules/plans/delete.php?id=' . $p['plan_id'])) ?>" onclick="return confirm('Deactivate this plan? (kept for historical subscriptions - BR-06)')" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-amber-600' ?>">Deactivate</a>
         <?php else: ?>
           <a href="<?= e(base_url('modules/plans/delete.php?id=' . $p['plan_id'] . '&reactivate=1')) ?>" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-emerald-600' ?>">Reactivate</a>
+        <?php endif; ?>
+        <?php if ((int) $p['history_count'] === 0): ?>
+          <a href="<?= e(base_url('modules/plans/hard_delete.php?id=' . $p['plan_id'])) ?>" onclick="return confirm('Permanently delete this plan? This cannot be undone (allowed only because no member has subscribed to it yet).')" class="text-sm font-bold <?= $featured ? 'text-white underline' : 'text-rose-500 hover:text-rose-700' ?>">Delete</a>
+        <?php else: ?>
+          <span title="In use by <?= (int) $p['history_count'] ?> subscription/payment record(s) - Deactivate instead (BR-06)" class="text-sm font-bold cursor-not-allowed <?= $featured ? 'text-white/40' : 'text-slate-300' ?>">Delete</span>
         <?php endif; ?>
       </div>
     </div>
