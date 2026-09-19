@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
+//retrive current plans from the database
 $plans = $pdo->query('SELECT * FROM membership_plans ORDER BY duration_months ASC')->fetchAll();
 
 $pageTitle = 'Membership Plans';

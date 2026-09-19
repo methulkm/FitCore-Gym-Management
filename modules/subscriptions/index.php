@@ -14,7 +14,7 @@ $pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon a
 $activeNav = 'subscriptions';
 $ownerTag = 'Methul';
 $headerActions = btn('+ New Subscription', base_url('modules/subscriptions/create.php'));
-require __DIR__ . '/../../includes/layout_start.php';
+require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
 ?>
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
