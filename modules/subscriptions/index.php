@@ -10,6 +10,17 @@ $sql = "SELECT s.*, m.full_name, m.member_code, p.plan_name, p.duration_months,
         ORDER BY s.subscription_id DESC";
 $subs = $pdo->query($sql)->fetchAll();
 
+// Status is computed at read time (BR-04), so filtering happens here rather than in SQL.
+foreach ($subs as &$s) {
+    [$s['disp_key'], $s['disp_label']] = subscription_display_status($s['expiry_date'], $s['status']);
+}
+unset($s);
+
+$statusFilter = $_GET['status'] ?? 'all';
+if ($statusFilter !== 'all') {
+    $subs = array_values(array_filter($subs, fn($s) => $s['disp_key'] === $statusFilter));
+}
+
 $pageTitle = 'Subscription & Renewal Management';
 $pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon alerts & renewals (FR-14, FR-15, BR-04, BR-09)';
 $activeNav = 'subscriptions';
@@ -19,6 +30,11 @@ require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
 ?>
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+    <?php foreach (['all' => 'All', 'active' => 'Active', 'expiring_soon' => 'Expiring Soon', 'expired' => 'Expired', 'deactivated' => 'Deactivated'] as $key => $label): ?>
+      <a href="?status=<?= e($key) ?>" class="text-xs font-bold px-3 py-1.5 rounded-full <?= $statusFilter === $key ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' ?>"><?= e($label) ?></a>
+    <?php endforeach; ?>
+  </div>
   <table class="w-full text-sm">
     <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
       <tr>
@@ -32,7 +48,7 @@ require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
     </thead>
     <tbody class="divide-y divide-slate-100">
       <?php foreach ($subs as $s):
-        [$dispKey, $dispLabel] = subscription_display_status($s['expiry_date'], $s['status']);
+        $dispKey = $s['disp_key']; $dispLabel = $s['disp_label'];
         $tone = match ($dispKey) { 'active' => 'emerald', 'expiring_soon' => 'amber', 'expired' => 'rose', default => 'slate' };
       ?>
         <tr>

@@ -98,7 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="email" name="email" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-teal-500" placeholder="you@fitcore.lk">
         </div>
         <div>
-          <label class="text-xs font-bold text-slate-500">Password</label>
+          <div class="flex items-center justify-between">
+            <label class="text-xs font-bold text-slate-500">Password</label>
+            <a href="<?= e(base_url('auth/forgot_password.php')) ?>" class="text-xs font-semibold text-teal-600 hover:text-teal-700">Forgot password?</a>
+          </div>
           <input type="password" name="password" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-teal-500" placeholder="••••••••">
         </div>
         <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-[10px] py-3 text-sm">Sign In</button>

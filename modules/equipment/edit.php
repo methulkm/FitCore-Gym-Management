@@ -21,6 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         $pdo->prepare('UPDATE equipment SET equipment_name=?, supplier=?, condition_status=?, location=?, status=? WHERE equipment_id=?')
             ->execute([$name, $supplier, $condition, $location, $status, $id]);
+
+        if (in_array($status, ['under_maintenance', 'out_of_service'], true) && $status !== $eq['status']) {
+            notify_admin($pdo, 'equipment', "{$name} ({$eq['equipment_code']}) was marked " . str_replace('_', ' ', $status) . '.', 'modules/equipment/index.php');
+        }
+
         redirect_with_flash('modules/equipment/index.php', 'success', "Equipment {$eq['equipment_code']} updated.");
     }
 }

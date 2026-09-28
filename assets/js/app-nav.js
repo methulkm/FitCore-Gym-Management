@@ -95,6 +95,7 @@
     content.style.opacity = '.55';
     content.style.transition = 'opacity .15s';
     barStart();
+    window.dispatchEvent(new Event('app-nav-start')); // lets persistent-shell widgets (e.g. the notif dropdown) close themselves
 
     var opts = { credentials: 'same-origin', headers: { 'X-Requested-With': 'app-nav' } };
     if (init) Object.keys(init).forEach(function (k) { opts[k] = init[k]; });

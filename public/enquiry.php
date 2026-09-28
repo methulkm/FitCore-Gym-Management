@@ -14,4 +14,6 @@ if ($name === '' || $message === '') {
 $pdo->prepare('INSERT INTO enquiries (name, phone, email, message, status) VALUES (?, ?, ?, ?, "new")')
     ->execute([$name, $phone, $email, $message]);
 
+notify_admin($pdo, 'enquiry', "New visitor enquiry from {$name}.", 'modules/enquiries/index.php');
+
 redirect_with_flash('public/contact.php', 'success', 'Thanks ' . $name . ' - your enquiry has been sent. We will get back to you soon.');

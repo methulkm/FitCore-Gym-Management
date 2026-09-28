@@ -23,14 +23,14 @@ $classes = $pdo->query("SELECT c.*, t.full_name AS trainer_name,
     <?php foreach ($classes as $c):
       $pct = $c['capacity'] > 0 ? min(100, round($c['booked_count']/$c['capacity']*100)) : 0;
       $full = $c['booked_count'] >= $c['capacity']; ?>
-      <div class="glass rounded-2xl p-6">
+      <div data-reveal class="glass glass-hover rounded-2xl p-6">
         <div class="flex justify-between items-start mb-1">
           <p class="font-extrabold text-lg"><?= e($c['class_name']) ?></p>
           <span class="text-teal-400 text-sm font-bold whitespace-nowrap"><?= e(date('h:i A', strtotime($c['start_time']))) ?></span>
         </div>
         <p class="text-xs text-slate-400 mb-4">with <?= e($c['trainer_name']) ?> &middot; <?= e(date('D, d M', strtotime($c['class_date']))) ?></p>
         <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2">
-          <div class="h-full <?= $full ? 'bg-rose-400' : 'bg-gradient-to-r from-teal-500 to-teal-300' ?>" style="width:<?= $pct ?>%"></div>
+          <div class="h-full <?= $full ? 'bg-rose-400' : 'bg-gradient-to-r from-teal-500 to-teal-300' ?>" data-width="<?= $pct ?>" style="width:0%"></div>
         </div>
         <p class="text-xs text-slate-500"><?= (int) $c['booked_count'] ?>/<?= (int) $c['capacity'] ?> spots &middot; <?= $full ? 'Class full' : 'Login to Book Spot' ?></p>
       </div>

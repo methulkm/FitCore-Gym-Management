@@ -16,12 +16,14 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
-    user_id       INT AUTO_INCREMENT PRIMARY KEY,
-    email         VARCHAR(150) NOT NULL UNIQUE,     -- login username (SRS 2.7)
-    password_hash VARCHAR(255) NOT NULL,             -- NFR-S01: never plain text
-    role          ENUM('admin','member','trainer') NOT NULL,
-    status        ENUM('active','inactive') NOT NULL DEFAULT 'active',
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id              INT AUTO_INCREMENT PRIMARY KEY,
+    email                VARCHAR(150) NOT NULL UNIQUE,     -- login username (SRS 2.7)
+    password_hash        VARCHAR(255) NOT NULL,             -- NFR-S01: never plain text
+    role                 ENUM('admin','member','trainer') NOT NULL,
+    status                ENUM('active','inactive') NOT NULL DEFAULT 'active',
+    security_question    VARCHAR(255) NULL,   -- BR-21 extension: self-service recovery (no SMTP in this environment)
+    security_answer_hash VARCHAR(255) NULL,
+    created_at           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ---------------------------------------------------------------------
@@ -275,6 +277,20 @@ CREATE TABLE enquiries (
     created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ---------------------------------------------------------------------
+-- NOTIFICATIONS  (admin-facing alerts: new payment, leave request, enquiry, equipment issue)
+-- ---------------------------------------------------------------------
+DROP TABLE IF EXISTS notifications;
+CREATE TABLE notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    type             VARCHAR(40) NOT NULL,      -- e.g. 'payment', 'leave', 'enquiry', 'equipment'
+    message          VARCHAR(255) NOT NULL,
+    link             VARCHAR(255) NULL,         -- where clicking the notification should go
+    target_role      ENUM('admin') NOT NULL DEFAULT 'admin', -- room to extend to other roles later
+    is_read          TINYINT(1) NOT NULL DEFAULT 0,
+    created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- =====================================================================
@@ -282,9 +298,10 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- =====================================================================
 
 -- Admin login: admin@fitcore.lk / password: Admin@123
-INSERT INTO users (email, password_hash, role, status) VALUES
-('admin@fitcore.lk', '$2y$10$5FD20FPu73gUZYdpBCy0qeXyfQKHTG97wBHLgBcE2YjD9Lw.U/FUW', 'admin', 'active');
--- NOTE: hash above is a real bcrypt hash for 'Admin@123', generated via PHP password_hash().
+INSERT INTO users (email, password_hash, role, status, security_question, security_answer_hash) VALUES
+('admin@fitcore.lk', '$2y$10$5FD20FPu73gUZYdpBCy0qeXyfQKHTG97wBHLgBcE2YjD9Lw.U/FUW', 'admin', 'active',
+ 'Which city is FitCore gym located in?', '$2y$10$GD1VyiuGlEPblQhGqmE3meO813Pa9gjo09UvnBd9WJXJx7kI/g3y2');
+-- NOTE: password hash above is bcrypt for 'Admin@123'; security-answer hash is bcrypt for 'colombo' (lowercased before hashing).
 
 -- description stores perks pipe-separated ("Perk one|Perk two"), rendered as a bullet list.
 INSERT INTO membership_plans (plan_name, duration_months, price, description, is_featured, status) VALUES

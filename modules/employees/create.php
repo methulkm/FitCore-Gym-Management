@@ -9,8 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $jobRole = $_POST['job_role'] ?? '';
     $shift = $_POST['shift'] ?? 'general';
 
-    if ($fullName === '') $errors[] = 'Full name is required.';
-    if ($phone === '') $errors[] = 'Phone number is required.';
+    v_push($errors, v_required($fullName, 'Full name'));
+    v_push($errors, v_required($phone, 'Phone number'));
+    v_push($errors, v_phone($phone));
     if (!in_array($jobRole, ['cleaner', 'receptionist', 'maintenance'], true)) $errors[] = 'Please choose a valid job role.';
 
     if (!$errors) {

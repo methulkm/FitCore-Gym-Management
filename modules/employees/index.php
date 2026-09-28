@@ -2,18 +2,27 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
+$roleFilter = $_GET['role'] ?? 'all';
+$statusFilter = $_GET['status'] ?? 'all';
+
 // history_count so the UI only offers a hard Delete when it's safe - an employee with
 // attendance/leave records is real HR history and must be Deactivated instead (SRS 3.1).
-$employees = $pdo->query(
-    'SELECT e.*,
+$sql = 'SELECT e.*,
         (SELECT COUNT(*) FROM employee_attendance WHERE employee_id = e.employee_id) +
         (SELECT COUNT(*) FROM employee_leave WHERE employee_id = e.employee_id) AS history_count
-     FROM employees e ORDER BY e.employee_id DESC'
+     FROM employees e WHERE 1=1';
+$params = [];
+if ($roleFilter !== 'all') { $sql .= ' AND e.job_role = ?'; $params[] = $roleFilter; }
+if ($statusFilter !== 'all') { $sql .= ' AND e.status = ?'; $params[] = $statusFilter; }
+$sql .= ' ORDER BY e.employee_id DESC';
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$employees = $stmt->fetchAll();
 
-)->fetchAll();
-$total = count($employees);
-$active = count(array_filter($employees, fn($e) => $e['status'] === 'active'));
-$onLeave = count(array_filter($employees, fn($e) => $e['status'] === 'on_leave'));
+$allEmployees = $pdo->query('SELECT status FROM employees')->fetchAll();
+$total = count($allEmployees);
+$active = count(array_filter($allEmployees, fn($e) => $e['status'] === 'active'));
+$onLeave = count(array_filter($allEmployees, fn($e) => $e['status'] === 'on_leave'));
 
 $pageTitle = 'Employee Directory';
 $pageSubtitle = 'Cleaners, receptionists & maintenance staff - shifts, phone numbers, status (FR-04, FR-07, BR-03, BR-17, UC-04)';
@@ -35,6 +44,21 @@ require __DIR__ . '/../../includes/layout_start.php';
 </div>
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-slate-100">
+    <div class="flex items-center gap-2">
+      <?php foreach (['all' => 'All Roles', 'cleaner' => 'Cleaner', 'receptionist' => 'Receptionist', 'maintenance' => 'Maintenance'] as $key => $label): ?>
+        <a href="?role=<?= e($key) ?>&status=<?= e($statusFilter) ?>" class="text-xs font-bold px-3 py-1.5 rounded-full <?= $roleFilter === $key ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' ?>"><?= e($label) ?></a>
+      <?php endforeach; ?>
+    </div>
+    <form method="get" class="ml-auto">
+      <input type="hidden" name="role" value="<?= e($roleFilter) ?>">
+      <select name="status" onchange="this.form.submit()" class="text-xs font-bold border border-slate-200 rounded-full px-3 py-1.5 text-slate-600">
+        <?php foreach (['all' => 'All Statuses', 'active' => 'Active', 'on_leave' => 'On Leave', 'inactive' => 'Inactive'] as $key => $label): ?>
+          <option value="<?= e($key) ?>" <?= $statusFilter === $key ? 'selected' : '' ?>><?= e($label) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </form>
+  </div>
   <table class="w-full text-sm">
     <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
       <tr>

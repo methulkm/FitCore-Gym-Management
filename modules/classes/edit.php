@@ -19,8 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $duration = (int) ($_POST['duration_minutes'] ?? 60);
     $capacity = (int) ($_POST['capacity'] ?? 0);
 
-    if ($className === '') $errors[] = 'Class name is required.';
-    if ($capacity <= 0) $errors[] = 'Capacity must be greater than 0.';
+    v_push($errors, v_required($className, 'Class name'));
+    v_push($errors, v_positive_int($duration, 'Duration'));
+    v_push($errors, v_positive_int($capacity, 'Capacity'));
 
     if (!$errors) {
         $pdo->prepare('UPDATE classes SET class_name=?, trainer_id=?, class_date=?, start_time=?, duration_minutes=?, capacity=? WHERE class_id=?')

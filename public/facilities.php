@@ -23,7 +23,7 @@ require_once __DIR__ . '/../includes/public_header.php';
         ['trophy', 'Personal Training Enclave', 'A quieter, dedicated space reserved for 1-on-1 coaching sessions.'],
         ['shield', 'Changing & Locker Suites', 'Secure lockers, showers and a relaxation lounge for before and after.'],
     ] as [$icon, $title, $desc]): ?>
-      <div class="glass glass-hover rounded-2xl p-7">
+      <div data-reveal class="glass glass-hover rounded-2xl p-7">
         <div class="w-12 h-12 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center mb-5"><?= gym_icon($icon, 'w-6 h-6') ?></div>
         <p class="font-extrabold text-lg mb-2"><?= e($title) ?></p>
         <p class="text-slate-400 text-sm"><?= e($desc) ?></p>

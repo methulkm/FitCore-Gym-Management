@@ -13,9 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
     $joinDate = $_POST['join_date'] ?: date('Y-m-d');
 
-    if ($fullName === '') $errors[] = 'Full name is required.';
-    if ($nic === '') $errors[] = 'NIC / Passport is required.';
-    if ($phone === '') $errors[] = 'Phone number is required.';
+    v_push($errors, v_required($fullName, 'Full name'));
+    v_push($errors, v_required($nic, 'NIC / Passport'));
+    v_push($errors, v_nic($nic));
+    v_push($errors, v_required($phone, 'Phone number'));
+    v_push($errors, v_phone($phone));
+    v_push($errors, v_email($email));
 
     if (!$errors) {
         $pdo->beginTransaction();

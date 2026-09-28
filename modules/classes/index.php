@@ -2,12 +2,22 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
+$statusFilter = $_GET['status'] ?? 'all';
+$trainerFilter = (int) ($_GET['trainer_id'] ?? 0);
+
 $sql = "SELECT c.*, t.full_name AS trainer_name,
         (SELECT COUNT(*) FROM bookings b WHERE b.class_id = c.class_id AND b.status = 'booked') AS booked_count,
         (SELECT COUNT(*) FROM bookings b WHERE b.class_id = c.class_id) AS history_count
-        FROM classes c JOIN trainers t ON t.trainer_id = c.trainer_id
-        ORDER BY c.class_date, c.start_time";
-$classes = $pdo->query($sql)->fetchAll();
+        FROM classes c JOIN trainers t ON t.trainer_id = c.trainer_id WHERE 1=1";
+$params = [];
+if ($statusFilter !== 'all') { $sql .= ' AND c.status = ?'; $params[] = $statusFilter; }
+if ($trainerFilter) { $sql .= ' AND c.trainer_id = ?'; $params[] = $trainerFilter; }
+$sql .= ' ORDER BY c.class_date, c.start_time';
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$classes = $stmt->fetchAll();
+
+$allTrainers = $pdo->query("SELECT trainer_id, full_name FROM trainers WHERE status = 'active' ORDER BY full_name")->fetchAll();
 
 $pageTitle = 'Class / PT Booking Management';
 $pageSubtitle = 'Live capacity, 1-hour PT sessions, conflict prevention & 2-hour cancellation rule (FR-08, FR-11, FR-12, BR-10..BR-14)';
@@ -17,7 +27,22 @@ $headerActions = btn('+ Add Class', base_url('modules/classes/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
-
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-wrap items-center gap-3">
+  <div class="flex items-center gap-2">
+    <?php foreach (['all' => 'All', 'scheduled' => 'Scheduled', 'cancelled' => 'Cancelled', 'completed' => 'Completed'] as $key => $label): ?>
+      <a href="?status=<?= e($key) ?>&trainer_id=<?= (int) $trainerFilter ?>" class="text-xs font-bold px-3 py-1.5 rounded-full <?= $statusFilter === $key ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' ?>"><?= e($label) ?></a>
+    <?php endforeach; ?>
+  </div>
+  <form method="get" class="ml-auto">
+    <input type="hidden" name="status" value="<?= e($statusFilter) ?>">
+    <select name="trainer_id" onchange="this.form.submit()" class="text-xs font-bold border border-slate-200 rounded-full px-3 py-1.5 text-slate-600">
+      <option value="0">All Trainers</option>
+      <?php foreach ($allTrainers as $t): ?>
+        <option value="<?= (int) $t['trainer_id'] ?>" <?= $trainerFilter === (int) $t['trainer_id'] ? 'selected' : '' ?>><?= e($t['full_name']) ?></option>
+      <?php endforeach; ?>
+    </select>
+  </form>
+</div>
 
 <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
   <?php foreach ($classes as $c):

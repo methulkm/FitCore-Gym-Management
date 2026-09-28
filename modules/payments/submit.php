@@ -51,6 +51,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->prepare('INSERT INTO payments (payment_code, member_id, plan_id, amount, transfer_date, reference_number, slip_path, status)
                         VALUES (?, ?, ?, ?, ?, ?, ?, "pending")')
             ->execute([$code, $memberId, $planId, $amount, $transferDate, $refNumber, $slipPath]);
+
+        $memberName = $pdo->prepare('SELECT full_name FROM members WHERE member_id = ?');
+        $memberName->execute([$memberId]);
+        notify_admin($pdo, 'payment', "New payment {$code} submitted by {$memberName->fetchColumn()} - needs verification.", 'modules/payments/index.php');
+
         redirect_with_flash('modules/payments/submit.php', 'success', "Payment {$code} submitted and is now pending admin verification.");
     }
 }

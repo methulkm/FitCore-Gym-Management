@@ -15,8 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $jobRole = $_POST['job_role'] ?? '';
     $shift = $_POST['shift'] ?? 'general';
 
-    if ($fullName === '') $errors[] = 'Full name is required.';
-    if ($phone === '') $errors[] = 'Phone number is required.';
+    v_push($errors, v_required($fullName, 'Full name'));
+    v_push($errors, v_required($phone, 'Phone number'));
+    v_push($errors, v_phone($phone));
 
     if (!$errors) {
         $pdo->prepare('UPDATE employees SET full_name=?, phone=?, job_role=?, shift=? WHERE employee_id=?')

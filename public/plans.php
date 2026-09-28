@@ -20,7 +20,7 @@ $plans = $pdo->query("SELECT * FROM membership_plans WHERE status='active' ORDER
     <?php foreach ($plans as $p):
       $perks = array_filter(explode('|', $p['description']));
       $featured = (bool) $p['is_featured']; ?>
-      <div class="relative rounded-2xl p-7 border <?= $featured ? 'bg-gradient-to-br from-teal-500 to-teal-600 border-transparent md:-translate-y-3 shadow-2xl shadow-teal-500/20' : 'glass' ?>">
+      <div data-reveal class="relative rounded-2xl p-7 border <?= $featured ? 'bg-gradient-to-br from-teal-500 to-teal-600 border-transparent md:-translate-y-3 shadow-2xl shadow-teal-500/20 transition-shadow duration-300 hover:shadow-teal-500/35' : 'glass glass-hover' ?>">
         <?php if ($featured): ?><span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-extrabold px-3 py-1 rounded-full bg-[#07110F] text-teal-300 flex items-center gap-1"><?= gym_icon('star', 'w-3 h-3 fill-current') ?> MOST POPULAR</span><?php endif; ?>
         <p class="text-xs font-bold <?= $featured ? 'text-white/70' : 'text-slate-500' ?> mb-2"><?= (int) $p['duration_months'] ?> Month<?= $p['duration_months']>1?'s':'' ?></p>
         <p class="font-extrabold text-lg mb-1"><?= e($p['plan_name']) ?></p>
@@ -30,7 +30,7 @@ $plans = $pdo->query("SELECT * FROM membership_plans WHERE status='active' ORDER
             <li class="flex items-center gap-2"><?= gym_icon('check', 'w-4 h-4 ' . ($featured ? 'text-white' : 'text-teal-400')) ?> <?= e(trim($perk)) ?></li>
           <?php endforeach; ?>
         </ul>
-        <a href="<?= e(base_url('auth/login.php')) ?>" class="block text-center text-sm font-extrabold py-3 rounded-[10px] transition <?= $featured ? 'bg-[#07110F] text-white hover:bg-black' : 'bg-white/5 hover:bg-white/10 border border-white/10' ?>">Login to Subscribe</a>
+        <a href="<?= e(base_url('auth/login.php')) ?>" class="btn-shine block text-center text-sm font-extrabold py-3 rounded-[10px] transition <?= $featured ? 'bg-[#07110F] text-white hover:bg-black' : 'bg-white/5 hover:bg-white/10 border border-white/10' ?>">Login to Subscribe</a>
       </div>
     <?php endforeach; ?>
   </div>

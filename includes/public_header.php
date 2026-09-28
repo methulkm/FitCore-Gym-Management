@@ -61,16 +61,81 @@ $publicNav = [
     background:linear-gradient(to bottom, transparent, #070B15);}
   .hero-banner > *{position:relative;z-index:1}
   .hero-watermark{position:absolute;top:50%;right:-60px;transform:translateY(-50%) rotate(-18deg);opacity:.05;z-index:0;pointer-events:none}
+
+  /* ---------- Liquid-glass floating navbar ---------- */
+  .glass-nav{
+    background:rgba(13,21,38,.5);
+    backdrop-filter:blur(20px) saturate(160%);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    border:1px solid rgba(255,255,255,.09);
+    border-top-color:rgba(255,255,255,.22); /* glossy top highlight, the "liquid" edge */
+    border-radius:20px;
+    box-shadow:0 8px 32px -12px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+    transition:background .35s ease, box-shadow .35s ease, border-color .35s ease, padding .35s ease;
+  }
+  .glass-nav.is-scrolled{
+    background:rgba(9,14,26,.78);
+    box-shadow:0 10px 36px -10px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .nav-shell{position:sticky; top:0; z-index:30; padding:14px 16px 0}
+
+  /* ---------- Scroll-reveal (IntersectionObserver adds .is-visible) ---------- */
+  [data-reveal]{opacity:0; transform:translateY(22px); transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1)}
+  [data-reveal].is-visible{opacity:1; transform:translateY(0)}
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal]{opacity:1; transform:none; transition:none}
+  }
+
+  /* ---------- Glossy sheen sweep for glass cards on hover ---------- */
+  .glass{position:relative; overflow:hidden}
+  .glass::before{
+    content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+    background:linear-gradient(115deg, transparent 30%, rgba(255,255,255,.06) 45%, transparent 60%);
+    transform:translateX(-120%); transition:transform .7s ease;
+  }
+  .glass-hover:hover::before{transform:translateX(120%)}
+  .glass > *{position:relative; z-index:1}
+
+  /* ---------- Button shine sweep ---------- */
+  .btn-shine{position:relative; overflow:hidden}
+  .btn-shine::after{
+    content:''; position:absolute; top:0; bottom:0; left:-60%; width:40%;
+    background:linear-gradient(115deg, transparent, rgba(255,255,255,.35), transparent);
+    transform:skewX(-15deg); transition:left .55s ease;
+  }
+  .btn-shine:hover::after{left:120%}
+
+  /* ---------- Slow ambient drift on the background glow (cheap: one element, GPU-composited) ---------- */
+  @media (prefers-reduced-motion: no-preference){
+    .bg-atmosphere{animation:driftGlow 26s ease-in-out infinite alternate}
+  }
+  @keyframes driftGlow{
+    0%{background-position:0 0, 0 0}
+    100%{background-position:-40px 30px, 30px -20px}
+  }
+
+  /* ---------- Gentle floating bob for the hero's decorative glass cards ---------- */
+  @media (prefers-reduced-motion: no-preference){
+    .float-card{animation:floatBob 5s ease-in-out infinite}
+  }
+  @keyframes floatBob{
+    0%, 100%{transform:translateY(0) rotate(var(--rot,0deg))}
+    50%{transform:translateY(-9px) rotate(var(--rot,0deg))}
+  }
+
+  /* ---------- Capacity/progress bars fill in once scrolled into view (see reveal.js) ---------- */
+  [data-width]{transition:width 1s cubic-bezier(.16,1,.3,1)}
 </style>
 </head>
 <body class="text-white antialiased">
 <div class="bg-grid"></div>
 <div class="bg-atmosphere"></div>
 
-<header class="chrome sticky top-0 z-30 border-b border-white/10 shadow-[0_4px_24px_-8px_rgba(0,0,0,.5)]">
-  <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-3.5">
+<div class="nav-shell">
+<header id="siteNav" class="glass-nav max-w-7xl mx-auto">
+  <div class="flex items-center justify-between px-5 py-3">
     <a href="<?= e(base_url('public/index.php')) ?>" class="flex items-center gap-3">
-      <span class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-extrabold text-[#07110F] shadow-[0_0_20px_-4px_rgba(45,212,191,.8)]">FC</span>
+      <span class="w-9 h-9 rounded-[10px] bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-extrabold text-[#07110F] shadow-[0_0_20px_-4px_rgba(45,212,191,.8)]">FC</span>
       <span><span class="block font-extrabold leading-none text-[15px]">Fit<span class="text-teal-400">Core</span></span><span class="block text-[9px] font-bold tracking-widest text-slate-400">PREMIUM FITNESS CLUB</span></span>
     </a>
     <nav class="hidden lg:flex items-center gap-7 text-sm font-semibold text-slate-300">
@@ -82,17 +147,39 @@ $publicNav = [
       <?php endforeach; ?>
     </nav>
     <div class="flex items-center gap-3">
-      <a href="<?= e(base_url('auth/login.php')) ?>" class="hidden sm:inline-block bg-teal-500 hover:bg-teal-400 text-[#07110F] text-sm font-extrabold px-5 py-2.5 rounded-[10px] whitespace-nowrap btn-glow transition">Portal Login</a>
-      <button type="button" onclick="document.getElementById('mobileNav').classList.toggle('hidden')" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-[10px] border border-white/10 text-white">
+      <a href="<?= e(base_url('auth/login.php')) ?>" class="btn-shine hidden sm:inline-block bg-teal-500 hover:bg-teal-400 text-[#07110F] text-sm font-extrabold px-5 py-2.5 rounded-[10px] whitespace-nowrap btn-glow transition">Portal Login</a>
+      <button type="button" id="mobileNavBtn" class="lg:hidden w-10 h-10 flex items-center justify-center rounded-[10px] border border-white/10 text-white">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="w-5 h-5"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
     </div>
   </div>
-  <div id="mobileNav" class="chrome hidden lg:hidden border-t border-white/10 px-6 py-4 space-y-1">
+  <div id="mobileNav" class="hidden lg:hidden border-t border-white/10 px-5 py-4 space-y-1 overflow-hidden">
     <?php foreach ($publicNav as $key => $item): $isActive = ($activePublicNav ?? '') === $key; ?>
       <a href="<?= e(base_url($item['href'])) ?>" class="block py-2.5 text-sm font-semibold <?= $isActive ? 'text-teal-400' : 'text-slate-300' ?>"><?= e($item['label']) ?></a>
     <?php endforeach; ?>
     <a href="<?= e(base_url('auth/login.php')) ?>" class="block mt-2 text-center bg-teal-500 text-[#07110F] text-sm font-extrabold px-5 py-2.5 rounded-[10px]">Portal Login</a>
   </div>
 </header>
+</div>
+<script>
+(function(){
+  var nav = document.getElementById('siteNav');
+  var ticking = false;
+  function onScroll(){
+    if (!ticking) {
+      requestAnimationFrame(function(){
+        nav.classList.toggle('is-scrolled', window.scrollY > 24);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  var btn = document.getElementById('mobileNavBtn');
+  var menu = document.getElementById('mobileNav');
+  btn.addEventListener('click', function(){ menu.classList.toggle('hidden'); });
+})();
+</script>
 <main>

@@ -20,6 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         $pdo->prepare('INSERT INTO employee_leave (employee_id, leave_type, start_date, end_date, reason, status) VALUES (?, ?, ?, ?, ?, "pending")')
             ->execute([$employeeId, $leaveType, $startDate, $endDate, $reason]);
+
+        $empName = $pdo->prepare('SELECT full_name FROM employees WHERE employee_id = ?');
+        $empName->execute([$employeeId]);
+        notify_admin($pdo, 'leave', "{$empName->fetchColumn()} requested {$leaveType} leave ({$startDate} to {$endDate}).", 'modules/attendance/index.php');
+
         redirect_with_flash('modules/attendance/index.php', 'success', 'Leave request submitted.');
     }
 }

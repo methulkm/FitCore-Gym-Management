@@ -15,8 +15,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address'] ?? '');
     $email = trim($_POST['email'] ?? '');
 
-    if ($fullName === '') $errors[] = 'Full name is required.';
-    if ($phone === '') $errors[] = 'Phone number is required.';
+    v_push($errors, v_required($fullName, 'Full name'));
+    v_push($errors, v_required($phone, 'Phone number'));
+    v_push($errors, v_phone($phone));
+    v_push($errors, v_email($email));
 
     if (!$errors) {
         $pdo->prepare('UPDATE members SET full_name = ?, phone = ?, address = ?, email = ? WHERE member_id = ?')

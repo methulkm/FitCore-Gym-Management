@@ -13,10 +13,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $duration = (int) ($_POST['duration_minutes'] ?? 60);
     $capacity = (int) ($_POST['capacity'] ?? 0); // BR-11: admin sets capacity per class
 
-    if ($className === '') $errors[] = 'Class name is required.';
+    v_push($errors, v_required($className, 'Class name'));
     if (!$trainerId) $errors[] = 'Please choose a trainer.';
     if (!$classDate || !$startTime) $errors[] = 'Date and start time are required.';
-    if ($capacity <= 0) $errors[] = 'Capacity must be greater than 0.';
+    elseif ($classDate < date('Y-m-d')) $errors[] = 'Class date cannot be in the past.';
+    v_push($errors, v_positive_int($duration, 'Duration'));
+    v_push($errors, v_positive_int($capacity, 'Capacity'));
 
     if (!$errors) {
         // BR-13: prevent booking the same trainer for an overlapping session.

@@ -2,13 +2,24 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
+$statusFilter = $_GET['status'] ?? 'all';
+$locationFilter = trim($_GET['location'] ?? '');
+
 // history_count: Delete is only offered when there is no maintenance history to lose (it cascades).
-$equipment = $pdo->query(
-    'SELECT q.*, (SELECT COUNT(*) FROM equipment_maintenance WHERE equipment_id = q.equipment_id) AS history_count
-     FROM equipment q ORDER BY q.equipment_id DESC'
-)->fetchAll();
-$available = count(array_filter($equipment, fn($e) => $e['status'] === 'available'));
-$maintenance = count(array_filter($equipment, fn($e) => $e['status'] === 'under_maintenance'));
+$sql = 'SELECT q.*, (SELECT COUNT(*) FROM equipment_maintenance WHERE equipment_id = q.equipment_id) AS history_count
+     FROM equipment q WHERE 1=1';
+$params = [];
+if ($statusFilter !== 'all') { $sql .= ' AND q.status = ?'; $params[] = $statusFilter; }
+if ($locationFilter !== '') { $sql .= ' AND q.location = ?'; $params[] = $locationFilter; }
+$sql .= ' ORDER BY q.equipment_id DESC';
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$equipment = $stmt->fetchAll();
+
+$allEquipment = $pdo->query('SELECT status FROM equipment')->fetchAll();
+$available = count(array_filter($allEquipment, fn($e) => $e['status'] === 'available'));
+$maintenance = count(array_filter($allEquipment, fn($e) => $e['status'] === 'under_maintenance'));
+$locations = $pdo->query("SELECT DISTINCT location FROM equipment WHERE location != '' AND location IS NOT NULL ORDER BY location")->fetchAll(PDO::FETCH_COLUMN);
 
 $pageTitle = 'Equipment & Maintenance';
 $pageSubtitle = 'Machine inventory, condition, location and servicing schedule (FR-15, FR-19, BR-18, BR-19, UC-15)';
@@ -27,6 +38,22 @@ require __DIR__ . '/../../includes/layout_start.php';
 </div>
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="flex flex-wrap items-center gap-3 px-5 py-4 border-b border-slate-100">
+    <div class="flex items-center gap-2">
+      <?php foreach (['all' => 'All', 'available' => 'Available', 'in_use' => 'In Use', 'under_maintenance' => 'Under Maintenance', 'out_of_service' => 'Out of Service'] as $key => $label): ?>
+        <a href="?status=<?= e($key) ?>&location=<?= e(urlencode($locationFilter)) ?>" class="text-xs font-bold px-3 py-1.5 rounded-full <?= $statusFilter === $key ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' ?>"><?= e($label) ?></a>
+      <?php endforeach; ?>
+    </div>
+    <form method="get" class="ml-auto">
+      <input type="hidden" name="status" value="<?= e($statusFilter) ?>">
+      <select name="location" onchange="this.form.submit()" class="text-xs font-bold border border-slate-200 rounded-full px-3 py-1.5 text-slate-600">
+        <option value="">All Locations</option>
+        <?php foreach ($locations as $loc): ?>
+          <option value="<?= e($loc) ?>" <?= $locationFilter === $loc ? 'selected' : '' ?>><?= e($loc) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </form>
+  </div>
   <table class="w-full text-sm">
     <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
       <tr>

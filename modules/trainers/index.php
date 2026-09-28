@@ -5,12 +5,22 @@ require_role(['admin']);
 // history_count so the UI only offers a hard Delete when it's safe. Availability slots are just
 // disposable schedule config (they cascade away harmlessly); classes/bookings are real assignments
 // and history, so a trainer who has ever been assigned one must be Deactivated instead (SRS 3.1).
-$trainers = $pdo->query(
-    'SELECT t.*,
+$statusFilter = $_GET['status'] ?? 'all';
+$specFilter = trim($_GET['spec'] ?? '');
+
+$sql = 'SELECT t.*,
         (SELECT COUNT(*) FROM classes WHERE trainer_id = t.trainer_id) +
         (SELECT COUNT(*) FROM bookings WHERE trainer_id = t.trainer_id) AS history_count
-     FROM trainers t ORDER BY t.trainer_id DESC'
-)->fetchAll();
+     FROM trainers t WHERE 1=1';
+$params = [];
+if ($statusFilter !== 'all') { $sql .= ' AND t.status = ?'; $params[] = $statusFilter; }
+if ($specFilter !== '') { $sql .= ' AND t.specialization = ?'; $params[] = $specFilter; }
+$sql .= ' ORDER BY t.trainer_id DESC';
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+$trainers = $stmt->fetchAll();
+
+$specializations = $pdo->query("SELECT DISTINCT specialization FROM trainers WHERE specialization != '' ORDER BY specialization")->fetchAll(PDO::FETCH_COLUMN);
 
 $pageTitle = 'Trainers & Schedule Management';
 $pageSubtitle = 'Credentials, specializations, working-hours availability and class assignments (FR-06, FR-08, FR-09, FR-10, UC-05, UC-06)';
@@ -20,13 +30,32 @@ $headerActions = btn('+ Add Trainer', base_url('modules/trainers/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
-
+<div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-wrap items-center gap-3">
+  <div class="flex items-center gap-2">
+    <?php foreach (['all' => 'All', 'active' => 'Active', 'deactivated' => 'Deactivated'] as $key => $label): ?>
+      <a href="?status=<?= e($key) ?>&spec=<?= e($specFilter) ?>" class="text-xs font-bold px-3 py-1.5 rounded-full <?= $statusFilter === $key ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' ?>"><?= e($label) ?></a>
+    <?php endforeach; ?>
+  </div>
+  <form method="get" class="ml-auto">
+    <select name="spec" onchange="this.form.submit()" class="text-xs font-bold border border-slate-200 rounded-full px-3 py-1.5 text-slate-600">
+      <option value="">All specializations</option>
+      <?php foreach ($specializations as $spec): ?>
+        <option value="<?= e($spec) ?>" <?= $specFilter === $spec ? 'selected' : '' ?>><?= e($spec) ?></option>
+      <?php endforeach; ?>
+    </select>
+    <input type="hidden" name="status" value="<?= e($statusFilter) ?>">
+  </form>
+</div>
 
 <div class="grid md:grid-cols-3 gap-5">
   <?php foreach ($trainers as $t): ?>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
       <div class="flex items-center gap-3 mb-3">
-        <span class="w-11 h-11 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold"><?= e(strtoupper(substr($t['full_name'], 0, 2))) ?></span>
+        <?php if ($t['profile_image']): ?>
+          <img src="<?= e(base_url($t['profile_image'])) ?>" class="w-11 h-11 rounded-full object-cover border border-slate-200">
+        <?php else: ?>
+          <span class="w-11 h-11 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold"><?= e(strtoupper(substr($t['full_name'], 0, 2))) ?></span>
+        <?php endif; ?>
         <div>
           <p class="font-extrabold text-slate-900"><?= e($t['full_name']) ?></p>
           <p class="text-teal-600 text-xs font-bold"><?= e($t['trainer_code']) ?></p>
