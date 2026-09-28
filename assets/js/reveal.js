@@ -60,14 +60,17 @@
   document.querySelectorAll('[data-count]').forEach(function (el) { countObserver.observe(el); });
 
   // Progress/capacity bars: animate from 0 to their real width once scrolled into view.
+  // Important: observe the TRACK (parent, real size) not the fill bar itself - a bar that starts
+  // at width:0 has zero area, and IntersectionObserver can't compute a meaningful visibility
+  // ratio for a zero-area target, so it never reports isIntersecting for the bar directly.
   var barObserver = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
-        var el = entry.target;
-        requestAnimationFrame(function () { el.style.width = el.getAttribute('data-width') + '%'; });
-        barObserver.unobserve(el);
+        var fill = entry.target.querySelector('[data-width]');
+        if (fill) requestAnimationFrame(function () { fill.style.width = fill.getAttribute('data-width') + '%'; });
+        barObserver.unobserve(entry.target);
       }
     });
   }, { threshold: 0.3 });
-  document.querySelectorAll('[data-width]').forEach(function (el) { barObserver.observe(el); });
+  document.querySelectorAll('[data-width]').forEach(function (el) { barObserver.observe(el.parentElement); });
 })();
