@@ -33,6 +33,7 @@ require __DIR__ . '/../../includes/layout_start.php';
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
     <h3 class="font-extrabold mb-4">Record Today's Check-in</h3>
     <form method="post" action="<?= e(base_url('modules/attendance/check_in.php')) ?>" class="flex gap-2 mb-5">
+      <?= csrf_field() ?>
       <select name="employee_id" required class="flex-1 border border-slate-200 rounded-[10px] px-3 py-2.5 text-sm">
         <option value="">Select employee</option>
         <?php foreach ($employees as $emp): ?>
@@ -70,8 +71,8 @@ require __DIR__ . '/../../includes/layout_start.php';
           <p class="text-xs text-slate-500 mt-1 capitalize"><?= e($l['leave_type']) ?> leave &middot; <?= e(date('d M', strtotime($l['start_date']))) ?> - <?= e(date('d M Y', strtotime($l['end_date']))) ?></p>
           <?php if ($l['status'] === 'pending'): ?>
             <div class="flex gap-3 mt-2">
-              <a href="<?= e(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=approve')) ?>" class="text-emerald-600 text-xs font-bold">Approve</a>
-              <a href="<?= e(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=reject')) ?>" class="text-rose-500 text-xs font-bold">Reject</a>
+              <a href="<?= e(csrf_url(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=approve'))) ?>" class="text-emerald-600 text-xs font-bold">Approve</a>
+              <a href="<?= e(csrf_url(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=reject'))) ?>" class="text-rose-500 text-xs font-bold">Reject</a>
             </div>
           <?php endif; ?>
         </div>

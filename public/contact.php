@@ -42,6 +42,7 @@ $errorMsg = flash('error');
       <div class="rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-medium px-4 py-3 mb-5"><?= e($errorMsg) ?></div>
     <?php endif; ?>
     <form method="post" action="<?= e(base_url('public/enquiry.php')) ?>" class="space-y-4">
+      <?= csrf_field() ?>
       <div class="grid md:grid-cols-2 gap-4">
         <input name="name" required placeholder="Full Name" class="w-full bg-white/5 border border-white/10 rounded-[10px] px-4 py-3 text-sm placeholder-slate-500 transition-colors focus:outline-none focus:border-teal-400">
         <input name="phone" placeholder="Phone" class="w-full bg-white/5 border border-white/10 rounded-[10px] px-4 py-3 text-sm placeholder-slate-500 transition-colors focus:outline-none focus:border-teal-400">

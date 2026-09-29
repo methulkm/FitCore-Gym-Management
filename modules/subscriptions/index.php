@@ -67,11 +67,11 @@ require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
               <?= delete_disabled('Linked to a verified payment - cannot be deleted (BR-08)') ?>
             <?php endif; ?>
             <?php if ($dispKey === 'expiring_soon' || $dispKey === 'active'): ?>
-              <a href="<?= e(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id'])) ?>"
+              <a href="<?= e(csrf_url(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id']))) ?>"
                  onclick="return confirm('Renew: extends from current expiry date since membership is still active (BR-09).')"
                  class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3.5 py-2 rounded-[10px]">Renew</a>
             <?php else: ?>
-              <a href="<?= e(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id'])) ?>"
+              <a href="<?= e(csrf_url(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id']))) ?>"
                  onclick="return confirm('Renew: since membership has expired, new duration starts today (BR-09).')"
                  class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold px-3.5 py-2 rounded-[10px]">Restart</a>
             <?php endif; ?>

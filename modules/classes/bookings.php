@@ -10,6 +10,7 @@ if (!$class) redirect_with_flash('modules/classes/index.php', 'error', 'Class no
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/classes/bookings.php?class_id=' . $classId);
     $memberId = (int) ($_POST['member_id'] ?? 0);
     if (!$memberId) {
         $errors[] = 'Please choose a member.';
@@ -50,6 +51,7 @@ require __DIR__ . '/../../includes/layout_start.php';
       <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
     <?php endforeach; ?>
     <form method="post" class="flex gap-2">
+      <?= csrf_field() ?>
       <select name="member_id" required class="flex-1 border border-slate-200 rounded-[10px] px-3 py-2.5 text-sm">
         <option value="">Select member</option>
         <?php foreach ($members as $m): ?>
@@ -68,7 +70,7 @@ require __DIR__ . '/../../includes/layout_start.php';
           <div class="flex items-center gap-2">
             <?= status_badge(ucfirst($b['status']), match ($b['status']) { 'booked' => 'emerald', 'completed' => 'indigo', default => 'rose' }) ?>
             <?php if ($b['status'] === 'booked'): ?>
-              <a href="<?= e(base_url('modules/classes/booking_cancel.php?id=' . $b['booking_id'] . '&class_id=' . $classId)) ?>" class="text-rose-500 text-xs font-bold">Cancel</a>
+              <a href="<?= e(csrf_url(base_url('modules/classes/booking_cancel.php?id=' . $b['booking_id'] . '&class_id=' . $classId))) ?>" class="text-rose-500 text-xs font-bold">Cancel</a>
             <?php endif; ?>
           </div>
         </div>

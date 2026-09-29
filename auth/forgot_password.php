@@ -6,12 +6,13 @@ require_once __DIR__ . '/../includes/bootstrap.php';
 // recovery uses a security question set at seed time, kept local to this app (no email dependency).
 
 $stage = $_POST['stage'] ?? 'email';
-$error = null;
+$error = flash('error');
 $success = null;
 $email = trim($_POST['email'] ?? '');
 $question = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'email') {
+    csrf_verify('auth/forgot_password.php');
     $stmt = $pdo->prepare('SELECT security_question FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $question = $stmt->fetchColumn();
@@ -25,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'email') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'answer') {
+    csrf_verify('auth/forgot_password.php');
     $answer = trim($_POST['answer'] ?? '');
     $newPassword = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
@@ -93,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'answer') {
 
     <?php if ($stage === 'email'): ?>
       <form method="post" class="space-y-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="stage" value="email">
         <div>
           <label class="text-xs font-bold text-slate-500">Account Email</label>
@@ -102,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'answer') {
       </form>
     <?php elseif ($stage === 'answer'): ?>
       <form method="post" class="space-y-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="stage" value="answer">
         <input type="hidden" name="email" value="<?= e($email) ?>">
         <div>

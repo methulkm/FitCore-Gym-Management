@@ -76,7 +76,7 @@ require __DIR__ . '/../../includes/layout_start.php';
           </td>
           <td class="px-5 py-3 text-right space-x-2 whitespace-nowrap">
             <?php if ($p['status'] === 'pending'): ?>
-              <a href="<?= e(base_url('modules/payments/approve.php?id=' . $p['payment_id'])) ?>" onclick="return confirm('Approve this payment? This activates/extends the membership (BR-08/BR-09).')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-[10px]">Approve</a>
+              <a href="<?= e(csrf_url(base_url('modules/payments/approve.php?id=' . $p['payment_id']))) ?>" onclick="return confirm('Approve this payment? This activates/extends the membership (BR-08/BR-09).')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-[10px]">Approve</a>
               <a href="<?= e(base_url('modules/payments/reject.php?id=' . $p['payment_id'])) ?>" class="bg-white border border-slate-200 hover:bg-slate-50 text-rose-500 text-xs font-bold px-3 py-2 rounded-[10px]">Reject</a>
             <?php endif; ?>
           </td>

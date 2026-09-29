@@ -92,12 +92,12 @@ require __DIR__ . '/../../includes/layout_start.php';
           <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
             <a href="<?= e(base_url('modules/members/edit.php?id=' . $m['member_id'])) ?>" class="text-slate-500 hover:text-teal-600 text-sm font-bold">Edit</a>
             <?php if ($m['user_id']): ?>
-              <a href="<?= e(base_url('modules/members/reset_password.php?id=' . $m['member_id'])) ?>" onclick="return confirm('Reset this member\'s password? A new temporary password will be generated.')" class="text-indigo-500 hover:text-indigo-700 text-sm font-bold">Reset Password</a>
+              <a href="<?= e(csrf_url(base_url('modules/members/reset_password.php?id=' . $m['member_id']))) ?>" onclick="return confirm('Reset this member\'s password? A new temporary password will be generated.')" class="text-indigo-500 hover:text-indigo-700 text-sm font-bold">Reset Password</a>
             <?php endif; ?>
             <?php if ($m['account_status'] === 'active'): ?>
               <?= delete_link(base_url('modules/members/delete.php?id=' . $m['member_id']), 'Deactivate this member account?', 'Deactivate') ?>
             <?php else: ?>
-              <a href="<?= e(base_url('modules/members/delete.php?id=' . $m['member_id'] . '&reactivate=1')) ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-bold">Reactivate</a>
+              <a href="<?= e(csrf_url(base_url('modules/members/delete.php?id=' . $m['member_id'] . '&reactivate=1'))) ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-bold">Reactivate</a>
             <?php endif; ?>
             <?php if ((int) $m['history_count'] === 0): ?>
               <?= delete_link(base_url('modules/members/hard_delete.php?id=' . $m['member_id']), 'Permanently delete this member? This cannot be undone (only allowed because they have no subscriptions, payments, bookings or attendance yet).', 'Delete') ?>

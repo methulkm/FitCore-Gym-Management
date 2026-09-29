@@ -6,6 +6,7 @@ $employees = $pdo->query("SELECT employee_id, employee_code, full_name FROM empl
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/attendance/leave_create.php');
     $employeeId = (int) ($_POST['employee_id'] ?? 0);
     $leaveType = $_POST['leave_type'] ?? '';
     $startDate = $_POST['start_date'] ?? '';
@@ -39,6 +40,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
   <?php endforeach; ?>
   <form method="post" class="space-y-4">
+    <?= csrf_field() ?>
     <div>
       <label class="text-xs font-bold text-slate-500">Employee</label>
       <select name="employee_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">

@@ -1,16 +1,16 @@
 <?php
 require_once __DIR__ . '/../../includes/bootstrap.php';
-require_role(['admin']);
+require_role(['trainer']);
 
-$trainerId = (int) ($_GET['trainer_id'] ?? 0);
-$stmt = $pdo->prepare('SELECT * FROM trainers WHERE trainer_id = ?');
-$stmt->execute([$trainerId]);
+$userId = current_user()['user_id'];
+$stmt = $pdo->prepare('SELECT * FROM trainers WHERE user_id = ?');
+$stmt->execute([$userId]);
 $trainer = $stmt->fetch();
-if (!$trainer) redirect_with_flash('modules/trainers/index.php', 'error', 'Trainer not found.');
+if (!$trainer) redirect_with_flash('auth/login.php', 'error', 'No trainer profile linked to this account.');
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    csrf_verify('modules/trainers/availability.php?trainer_id=' . $trainerId);
+    csrf_verify('modules/trainer-portal/availability.php');
     $dayDate = $_POST['day_date'] ?? '';
     $startTime = $_POST['start_time'] ?? '';
     $endTime = $_POST['end_time'] ?? '';
@@ -19,19 +19,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     elseif ($endTime <= $startTime) $errors[] = 'End time must be after start time.'; // UC-06 validation
 
     if (!$errors) {
+        // Trainer can only ever insert a slot against their own trainer_id (from session), never one passed in from the form.
         $pdo->prepare('INSERT INTO trainer_availability (trainer_id, day_date, start_time, end_time) VALUES (?, ?, ?, ?)')
-            ->execute([$trainerId, $dayDate, $startTime, $endTime]);
-        redirect_with_flash('modules/trainers/availability.php?trainer_id=' . $trainerId, 'success', 'Availability slot added.');
+            ->execute([$trainer['trainer_id'], $dayDate, $startTime, $endTime]);
+        redirect_with_flash('modules/trainer-portal/availability.php', 'success', 'Availability slot added.');
     }
 }
 
 $slots = $pdo->prepare('SELECT * FROM trainer_availability WHERE trainer_id = ? ORDER BY day_date, start_time');
-$slots->execute([$trainerId]);
+$slots->execute([$trainer['trainer_id']]);
 $slots = $slots->fetchAll();
 
-$pageTitle = 'Availability - ' . $trainer['full_name'];
-$activeNav = 'trainers';
-$ownerTag = 'Senuka';
+$pageTitle = 'My Availability';
+$activeNav = 'trainer-portal';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="grid lg:grid-cols-2 gap-6">
@@ -60,7 +60,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     </form>
   </div>
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-    <h3 class="font-extrabold mb-4">Upcoming Availability</h3>
+    <h3 class="font-extrabold mb-4">My Availability</h3>
     <div class="space-y-2">
       <?php foreach ($slots as $s): ?>
         <div class="flex items-center justify-between text-sm border-b border-slate-100 pb-2">

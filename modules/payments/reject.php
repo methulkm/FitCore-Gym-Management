@@ -9,6 +9,7 @@ $payment = $stmt->fetch();
 if (!$payment) redirect_with_flash('modules/payments/index.php', 'error', 'Payment not found.');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/payments/index.php');
     $reason = trim($_POST['reason'] ?? '') ?: 'Not specified';
     $pdo->prepare('UPDATE payments SET status = "rejected", rejection_reason = ?, verified_by = ?, verified_at = NOW() WHERE payment_id = ?')
         ->execute([$reason, current_user()['user_id'], $id]);
@@ -23,6 +24,7 @@ require __DIR__ . '/../../includes/layout_start.php';
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-lg">
   <p class="text-sm text-slate-600 mb-4">Rejecting payment <b><?= e($payment['payment_code']) ?></b> from <b><?= e($payment['full_name']) ?></b>.</p>
   <form method="post">
+    <?= csrf_field() ?>
     <label class="text-xs font-bold text-slate-500">Reason (e.g. unclear slip, incorrect amount, payment not found)</label>
     <textarea name="reason" rows="3" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm" required></textarea>
     <div class="flex gap-3 pt-4">

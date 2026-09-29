@@ -74,3 +74,37 @@ function redirect_with_flash(string $to, string $key, string $message) {
     header('Location: ' . base_url($to));
     exit;
 }
+
+// --- CSRF protection ---------------------------------------------------
+// One secret token per session. Every state-changing request (a POST form, or one of the handful
+// of plain GET action links like Delete/Approve/Reset Password) must echo it back, proving the
+// request came from our own page and not a forged link/form on another site.
+function csrf_token(): string {
+    if (empty($_SESSION['csrf'])) {
+        $_SESSION['csrf'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf'];
+}
+
+// Wraps a GET action link (Delete, Approve, Reactivate, ...) with the current token.
+function csrf_url(string $url): string {
+    $sep = str_contains($url, '?') ? '&' : '?';
+    return $url . $sep . 'csrf=' . urlencode(csrf_token());
+}
+
+// Hidden field for POST forms: echo it right after the opening <form method="post"> tag.
+function csrf_field(): string {
+    return '<input type="hidden" name="csrf" value="' . e(csrf_token()) . '">';
+}
+
+// Call at the top of any script that mutates data. Wrong/missing token -> friendly redirect
+// instead of performing the action - never trust a request just because the session cookie is valid.
+function csrf_verify(string $redirectTo = 'auth/login.php'): void {
+    $token = $_POST['csrf'] ?? $_GET['csrf'] ?? '';
+    $expected = $_SESSION['csrf'] ?? '';
+    // Explicit empty checks first: hash_equals('', '') is true in PHP, which would otherwise let
+    // a request with no token through against a session that never generated one either.
+    if ($expected === '' || $token === '' || !hash_equals($expected, $token)) {
+        redirect_with_flash($redirectTo, 'error', 'Your session expired or that link was invalid. Please try again.');
+    }
+}

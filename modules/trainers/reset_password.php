@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
+csrf_verify('modules/trainers/index.php');
 
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare('SELECT * FROM trainers WHERE trainer_id = ?');

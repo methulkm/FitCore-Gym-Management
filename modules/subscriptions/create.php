@@ -7,6 +7,7 @@ $plans = $pdo->query("SELECT plan_id, plan_name, duration_months, price FROM mem
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/subscriptions/create.php');
     $memberId = (int) ($_POST['member_id'] ?? 0);
     $planId = (int) ($_POST['plan_id'] ?? 0);
     $startDate = $_POST['start_date'] ?: date('Y-m-d');
@@ -37,6 +38,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
   <?php endforeach; ?>
   <form method="post" class="space-y-4">
+    <?= csrf_field() ?>
     <div>
       <label class="text-xs font-bold text-slate-500">Member</label>
       <select name="member_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">

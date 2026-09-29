@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
+csrf_verify('modules/attendance/index.php');
 
 $employeeId = (int) ($_POST['employee_id'] ?? 0);
 if (!$employeeId) redirect_with_flash('modules/attendance/index.php', 'error', 'Please choose an employee.');

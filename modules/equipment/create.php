@@ -4,6 +4,7 @@ require_role(['admin']);
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/equipment/create.php');
     $name = trim($_POST['equipment_name'] ?? '');
     $supplier = trim($_POST['supplier'] ?? '');
     $purchaseDate = $_POST['purchase_date'] ?? null;
@@ -31,6 +32,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
   <?php endforeach; ?>
   <form method="post" class="grid grid-cols-2 gap-4">
+    <?= csrf_field() ?>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Equipment Name</label>
       <input name="equipment_name" required value="<?= e($_POST['equipment_name'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">

@@ -4,6 +4,7 @@ require_role(['admin']);
 
 $id = (int) ($_GET['id'] ?? 0);
 $classId = (int) ($_GET['class_id'] ?? 0);
+csrf_verify('modules/classes/bookings.php?class_id=' . $classId);
 
 $stmt = $pdo->prepare("SELECT b.*, c.class_date, c.start_time FROM bookings b JOIN classes c ON c.class_id = b.class_id WHERE b.booking_id = ?");
 $stmt->execute([$id]);

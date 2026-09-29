@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
 if (isset($_GET['set_status'], $_GET['id'])) {
+    csrf_verify('modules/enquiries/index.php');
     $status = $_GET['set_status'];
     if (in_array($status, ['new', 'reviewed', 'closed'], true)) {
         $pdo->prepare('UPDATE enquiries SET status = ? WHERE enquiry_id = ?')->execute([$status, (int) $_GET['id']]);
@@ -43,9 +44,9 @@ require __DIR__ . '/../../includes/layout_start.php';
           <div class="flex items-center gap-2 shrink-0">
             <?= status_badge(ucfirst($en['status']), match ($en['status']) { 'reviewed' => 'amber', 'closed' => 'slate', default => 'emerald' }) ?>
             <?php if ($en['status'] === 'new'): ?>
-              <a href="?set_status=reviewed&id=<?= (int) $en['enquiry_id'] ?>" class="text-xs font-bold text-amber-600 hover:text-amber-700">Mark Reviewed</a>
+              <a href="<?= e(csrf_url('?set_status=reviewed&id=' . (int) $en['enquiry_id'])) ?>" class="text-xs font-bold text-amber-600 hover:text-amber-700">Mark Reviewed</a>
             <?php elseif ($en['status'] === 'reviewed'): ?>
-              <a href="?set_status=closed&id=<?= (int) $en['enquiry_id'] ?>" class="text-xs font-bold text-slate-500 hover:text-slate-700">Close</a>
+              <a href="<?= e(csrf_url('?set_status=closed&id=' . (int) $en['enquiry_id'])) ?>" class="text-xs font-bold text-slate-500 hover:text-slate-700">Close</a>
             <?php endif; ?>
           </div>
         </div>

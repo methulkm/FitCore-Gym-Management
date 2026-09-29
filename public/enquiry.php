@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/bootstrap.php';
+csrf_verify('public/contact.php');
 
 $name = trim($_POST['name'] ?? '');
 $phone = trim($_POST['phone'] ?? '');

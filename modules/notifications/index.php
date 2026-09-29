@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
 if (isset($_GET['mark_all_read'])) {
+    csrf_verify('modules/notifications/index.php');
     $pdo->exec("UPDATE notifications SET is_read = 1 WHERE target_role='admin' AND is_read = 0");
     redirect_with_flash('modules/notifications/index.php', 'success', 'All notifications marked as read.');
 }
@@ -18,7 +19,7 @@ $unread = unread_notification_count($pdo);
 $pageTitle = 'Notifications';
 $pageSubtitle = 'All system alerts: new payments, leave requests, enquiries and equipment issues';
 $activeNav = 'notifications';
-$headerActions = $unread > 0 ? btn('Mark all as read', base_url('modules/notifications/index.php?mark_all_read=1'), 'ghost') : '';
+$headerActions = $unread > 0 ? btn('Mark all as read', csrf_url(base_url('modules/notifications/index.php?mark_all_read=1')), 'ghost') : '';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
@@ -31,7 +32,7 @@ require __DIR__ . '/../../includes/layout_start.php';
   <div class="divide-y divide-slate-100">
     <?php foreach ($notifications as $n):
       $style = notification_style($n['type']);
-      $target = $n['link'] ? base_url('modules/notifications/read.php?id=' . $n['notification_id'] . '&goto=' . urlencode($n['link'])) : '#';
+      $target = $n['link'] ? csrf_url(base_url('modules/notifications/read.php?id=' . $n['notification_id'] . '&goto=' . urlencode($n['link']))) : '#';
     ?>
       <a href="<?= e($target) ?>" class="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 transition <?= $n['is_read'] ? 'opacity-60' : '' ?>">
         <span class="w-10 h-10 rounded-xl bg-<?= e($style['tone']) ?>-50 text-<?= e($style['tone']) ?>-600 flex items-center justify-center shrink-0"><?= sidebar_icon($style['icon']) ?></span>

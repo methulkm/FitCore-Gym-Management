@@ -10,6 +10,7 @@ if (!$eq) redirect_with_flash('modules/equipment/index.php', 'error', 'Equipment
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/equipment/maintenance.php?equipment_id=' . $equipmentId);
     $maintDate = $_POST['maintenance_date'] ?? '';
     $nextDue = $_POST['next_due_date'] ?? null;
     $notes = trim($_POST['notes'] ?? '');
@@ -40,6 +41,7 @@ require __DIR__ . '/../../includes/layout_start.php';
       <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
     <?php endforeach; ?>
     <form method="post" class="space-y-4">
+      <?= csrf_field() ?>
       <div>
         <label class="text-xs font-bold text-slate-500">Maintenance Date</label>
         <input type="date" name="maintenance_date" required value="<?= e(date('Y-m-d')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">

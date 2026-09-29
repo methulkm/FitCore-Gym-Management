@@ -2,10 +2,11 @@
 require_once __DIR__ . '/../includes/bootstrap.php';
 
 $role = $_POST['role'] ?? $_GET['role'] ?? 'admin';
-$error = null;
+$error = flash('error');
 
 // UC-01: only Admin, Member, Trainer accounts exist and can log in (no visitor login, no self-registration).
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify();
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     $role = $_POST['role'] ?? 'admin';
@@ -92,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <?php endif; ?>
 
       <form method="post" class="space-y-4">
+        <?= csrf_field() ?>
         <input type="hidden" name="role" value="<?= e($role) ?>">
         <div>
           <label class="text-xs font-bold text-slate-500">Email</label>

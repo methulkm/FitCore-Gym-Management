@@ -10,6 +10,7 @@ if (!$member) redirect_with_flash('modules/members/index.php', 'error', 'Member 
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/members/index.php');
     $fullName = trim($_POST['full_name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $address = trim($_POST['address'] ?? '');
@@ -38,6 +39,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
   <?php endforeach; ?>
   <form method="post" class="grid grid-cols-2 gap-4">
+    <?= csrf_field() ?>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Full Name</label>
       <input name="full_name" required value="<?= e($_POST['full_name'] ?? $member['full_name']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">

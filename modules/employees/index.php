@@ -86,7 +86,7 @@ require __DIR__ . '/../../includes/layout_start.php';
             <?php if ($emp['status'] !== 'inactive'): ?>
               <?= delete_link(base_url('modules/employees/delete.php?id=' . $emp['employee_id']), 'Mark this employee inactive?', 'Deactivate') ?>
             <?php else: ?>
-              <a href="<?= e(base_url('modules/employees/delete.php?id=' . $emp['employee_id'] . '&reactivate=1')) ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-bold">Reactivate</a>
+              <a href="<?= e(csrf_url(base_url('modules/employees/delete.php?id=' . $emp['employee_id'] . '&reactivate=1'))) ?>" class="text-emerald-600 hover:text-emerald-700 text-sm font-bold">Reactivate</a>
             <?php endif; ?>
             <?php if ((int) $emp['history_count'] === 0): ?>
               <?= delete_link(base_url('modules/employees/hard_delete.php?id=' . $emp['employee_id']), 'Permanently delete this employee? This cannot be undone (only allowed because they have no attendance or leave history yet).', 'Delete') ?>

@@ -37,5 +37,5 @@ function delete_disabled(string $reason, string $label = 'Delete'): string {
 }
 
 function delete_link(string $href, string $confirmMsg = 'Are you sure?', string $label = 'Delete'): string {
-    return '<a href="' . e($href) . '" onclick="return confirm(' . htmlspecialchars(json_encode($confirmMsg), ENT_QUOTES) . ')" class="text-rose-500 hover:text-rose-700 text-sm font-bold">' . e($label) . '</a>';
+    return '<a href="' . e(csrf_url($href)) . '" onclick="return confirm(' . htmlspecialchars(json_encode($confirmMsg), ENT_QUOTES) . ')" class="text-rose-500 hover:text-rose-700 text-sm font-bold">' . e($label) . '</a>';
 }

@@ -10,6 +10,7 @@ const MAX_SLIP_BYTES = 5 * 1024 * 1024; // NFR-P04: 5MB max
 const ALLOWED_SLIP_TYPES = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'application/pdf' => 'pdf'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/payments/submit.php');
     $memberId = (int) ($_POST['member_id'] ?? 0);
     $planId = (int) ($_POST['plan_id'] ?? 0);
     $amount = (float) ($_POST['amount'] ?? 0);
@@ -76,6 +77,7 @@ require __DIR__ . '/../../includes/layout_start.php';
       <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
     <?php endforeach; ?>
     <form method="post" enctype="multipart/form-data" class="grid grid-cols-2 gap-4">
+      <?= csrf_field() ?>
       <div>
         <label class="text-xs font-bold text-slate-500">Member</label>
         <select name="member_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">

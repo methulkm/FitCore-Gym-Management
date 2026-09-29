@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
+csrf_verify('modules/members/index.php');
 
 $id = (int) ($_GET['id'] ?? 0);
 $reactivate = isset($_GET['reactivate']);

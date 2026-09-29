@@ -5,8 +5,10 @@ require_login(); // any logged-in role (admin/member/trainer) can change their o
 $user = current_user();
 $errors = [];
 $success = null;
+if ($flashError = flash('error')) $errors[] = $flashError;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('account/change_password.php');
     $current = $_POST['current_password'] ?? '';
     $new = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
@@ -38,6 +40,7 @@ require __DIR__ . '/../includes/layout_start.php';
     <div class="rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-medium px-4 py-3 mb-4"><?= e($success) ?></div>
   <?php endif; ?>
   <form method="post" class="space-y-4">
+    <?= csrf_field() ?>
     <div>
       <label class="text-xs font-bold text-slate-500">Current Password</label>
       <input type="password" name="current_password" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
