@@ -23,6 +23,7 @@ $activeNav = 'trainer-portal';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
+
 <div class="grid grid-cols-2 gap-4">
   <?= kpi_card('Upcoming Classes', (string) count($classes)) ?>
   <?= kpi_card('Specialization', $trainer['specialization'] ?: '-') ?>

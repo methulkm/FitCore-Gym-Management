@@ -26,6 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+
 $slots = $pdo->prepare('SELECT * FROM trainer_availability WHERE trainer_id = ? ORDER BY day_date, start_time');
 $slots->execute([$trainer['trainer_id']]);
 $slots = $slots->fetchAll();

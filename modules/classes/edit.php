@@ -11,6 +11,7 @@ if (!$class) redirect_with_flash('modules/classes/index.php', 'error', 'Class no
 $trainers = $pdo->query("SELECT trainer_id, full_name FROM trainers WHERE status = 'active' ORDER BY full_name")->fetchAll();
 $errors = [];
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/classes/index.php');
     $className = trim($_POST['class_name'] ?? '');

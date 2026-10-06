@@ -29,6 +29,7 @@ if ($q !== '' && strlen($q) >= 2) {
         $results['Trainers'][] = [$r['full_name'], $r['trainer_code'] . ' - ' . $r['specialization'], base_url('modules/trainers/edit.php?id=' . $r['trainer_id'])];
     }
 
+    
     $stmt = $pdo->prepare("SELECT equipment_id, equipment_code, equipment_name, location FROM equipment
         WHERE equipment_name LIKE ? OR equipment_code LIKE ? OR location LIKE ? LIMIT 8");
     $stmt->execute([$like, $like, $like]);
