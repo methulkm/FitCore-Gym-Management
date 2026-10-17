@@ -16,14 +16,14 @@ $countStmt = $pdo->prepare('SELECT
     (SELECT COUNT(*) FROM bookings WHERE member_id = :id3) +
     (SELECT COUNT(*) FROM member_attendance WHERE member_id = :id4) AS history_count');
 $countStmt->execute(['id1' => $id, 'id2' => $id, 'id3' => $id, 'id4' => $id]);
-$historyCount = (int) $countStmt->fetchColumn();
+$historyCount =  (int) $countStmt->fetchColumn();
 
 if ($historyCount > 0) {
-    redirect_with_flash('modules/members/index.php', 'error', 'Cannot permanently delete this member - they have subscription/payment/booking/attendance history. Use Deactivate instead.');
+      redirect_with_flash('modules/members/index.php', 'error', 'Cannot permanently delete this member - they have subscription/payment/booking/attendance history. Use Deactivate instead.');
 }
 
 $pdo->beginTransaction();
-try {
+try   { 
     // Remove their login account too, if they had one, so the email is free again.
     if ($member['user_id']) {
         $pdo->prepare('DELETE FROM users WHERE user_id = ?')->execute([$member['user_id']]);
