@@ -2,22 +2,38 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
-$sql = "SELECT s.*, m.full_name, m.member_code, p.plan_name, p.duration_months
+$sql = "SELECT s.*, m.full_name, m.member_code, p.plan_name, p.duration_months,
+        (SELECT COUNT(*) FROM payments pay WHERE pay.subscription_id = s.subscription_id) AS history_count
         FROM subscriptions s
         JOIN members m ON m.member_id = s.member_id
         JOIN membership_plans p ON p.plan_id = s.plan_id
         ORDER BY s.subscription_id DESC";
 $subs = $pdo->query($sql)->fetchAll();
 
+// Status is computed at read time (BR-04), so filtering happens here rather than in SQL.
+foreach ($subs as &$s) {
+    [$s['disp_key'], $s['disp_label']] = subscription_display_status($s['expiry_date'], $s['status']);
+}
+unset($s);
+
+$statusFilter = $_GET['status'] ?? 'all';
+if ($statusFilter !== 'all') {
+    $subs = array_values(array_filter($subs, fn($s) => $s['disp_key'] === $statusFilter));
+}
+
 $pageTitle = 'Subscription & Renewal Management';
-$pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon alerts & renewals (FR-14, FR-15, BR-04, BR-09)';
+$pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon alerts & renewals';
 $activeNav = 'subscriptions';
-$ownerTag = 'Methul';
 $headerActions = btn('+ New Subscription', base_url('modules/subscriptions/create.php'));
-require __DIR__ . '/../../includes/layout_start.php';
+require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
 ?>
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+  <div class="flex items-center gap-2 px-5 py-4 border-b border-slate-100">
+    <?php foreach (['all' => 'All', 'active' => 'Active', 'expiring_soon' => 'Expiring Soon', 'expired' => 'Expired', 'deactivated' => 'Deactivated'] as $key => $label): ?>
+      <a href="?status=<?= e($key) ?>" class="text-xs font-bold px-3 py-1.5 rounded-full <?= $statusFilter === $key ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' ?>"><?= e($label) ?></a>
+    <?php endforeach; ?>
+  </div>
   <table class="w-full text-sm">
     <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
       <tr>
@@ -26,12 +42,12 @@ require __DIR__ . '/../../includes/layout_start.php';
         <th class="text-left font-bold px-5 py-3">Start Date</th>
         <th class="text-left font-bold px-5 py-3">Expiry Date</th>
         <th class="text-left font-bold px-5 py-3">Status</th>
-        <th class="text-right font-bold px-5 py-3">Renewal Action</th>
+        <th class="text-right font-bold px-5 py-3">Actions</th>
       </tr>
     </thead>
     <tbody class="divide-y divide-slate-100">
       <?php foreach ($subs as $s):
-        [$dispKey, $dispLabel] = subscription_display_status($s['expiry_date'], $s['status']);
+        $dispKey = $s['disp_key']; $dispLabel = $s['disp_label'];
         $tone = match ($dispKey) { 'active' => 'emerald', 'expiring_soon' => 'amber', 'expired' => 'rose', default => 'slate' };
       ?>
         <tr>
@@ -43,14 +59,19 @@ require __DIR__ . '/../../includes/layout_start.php';
           <td class="px-5 py-3 text-slate-600 font-medium"><?= e(date('d M Y', strtotime($s['start_date']))) ?></td>
           <td class="px-5 py-3 text-slate-900 font-bold"><?= e(date('d M Y', strtotime($s['expiry_date']))) ?></td>
           <td class="px-5 py-3"><?= status_badge($dispLabel, $tone) ?></td>
-          <td class="px-5 py-3 text-right">
+          <td class="px-5 py-3 text-right space-x-3 whitespace-nowrap">
+            <?php if ((int) $s['history_count'] === 0): ?>
+              <?= delete_link(base_url('modules/subscriptions/hard_delete.php?id=' . $s['subscription_id']), 'Delete this subscription for ' . $s['full_name'] . '? The member will lose this membership record. This cannot be undone.', 'Delete') ?>
+            <?php else: ?>
+              <?= delete_disabled('Linked to a verified payment - cannot be deleted') ?>
+            <?php endif; ?>
             <?php if ($dispKey === 'expiring_soon' || $dispKey === 'active'): ?>
-              <a href="<?= e(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id'])) ?>"
-                 onclick="return confirm('Renew: extends from current expiry date since membership is still active (BR-09).')"
+              <a href="<?= e(csrf_url(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id']))) ?>"
+                 onclick="return confirm('Renew: extends from current expiry date since membership is still active.')"
                  class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3.5 py-2 rounded-[10px]">Renew</a>
             <?php else: ?>
-              <a href="<?= e(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id'])) ?>"
-                 onclick="return confirm('Renew: since membership has expired, new duration starts today (BR-09).')"
+              <a href="<?= e(csrf_url(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id']))) ?>"
+                 onclick="return confirm('Renew: since membership has expired, new duration starts today.')"
                  class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold px-3.5 py-2 rounded-[10px]">Restart</a>
             <?php endif; ?>
           </td>

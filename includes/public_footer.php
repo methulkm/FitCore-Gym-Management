@@ -38,5 +38,6 @@
     © 2026 FitCore Gym &middot; Apex Alliance (PPA Project)
   </div>
 </footer>
+<script src="<?= e(base_url('assets/js/reveal.js')) ?>?v=<?= (int) @filemtime(__DIR__ . '/../assets/js/reveal.js') ?>"></script>
 </body>
 </html>

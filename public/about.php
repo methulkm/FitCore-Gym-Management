@@ -19,7 +19,7 @@ require_once __DIR__ . '/../includes/public_header.php';
       ['users', 'Certified Coaches', 'Every trainer on our floor holds a recognized certification in their discipline.'],
       ['shield', 'Verified Payments', 'Bank-transfer slips are checked and verified by admin before any membership activates.'],
   ] as [$icon, $title, $desc]): ?>
-    <div class="glass rounded-2xl p-7">
+    <div data-reveal class="glass glass-hover rounded-2xl p-7">
       <div class="w-12 h-12 rounded-xl bg-teal-500/15 text-teal-400 flex items-center justify-center mb-5"><?= gym_icon($icon, 'w-6 h-6') ?></div>
       <p class="font-extrabold text-lg mb-2"><?= e($title) ?></p>
       <p class="text-slate-400 text-sm"><?= e($desc) ?></p>
@@ -28,12 +28,12 @@ require_once __DIR__ . '/../includes/public_header.php';
 </section>
 
 <section class="max-w-7xl mx-auto px-6 py-10 pb-24 grid md:grid-cols-2 gap-5">
-  <div class="glass rounded-2xl p-8">
+  <div data-reveal class="glass rounded-2xl p-8">
     <div class="flex items-center gap-3 mb-4 text-teal-400"><?= gym_icon('clock', 'w-6 h-6') ?><p class="font-extrabold text-lg text-white">Operational Hours</p></div>
     <div class="flex justify-between text-sm text-slate-300 border-b border-white/10 py-3"><span>Monday - Sunday</span><span class="font-bold text-white">05:00 AM - 11:00 PM</span></div>
     <p class="text-slate-500 text-xs mt-3">Open every day of the year, including public holidays.</p>
   </div>
-  <div class="glass rounded-2xl p-8">
+  <div data-reveal class="glass rounded-2xl p-8">
     <div class="flex items-center gap-3 mb-4 text-teal-400"><?= gym_icon('pin', 'w-6 h-6') ?><p class="font-extrabold text-lg text-white">Find Us</p></div>
     <p class="text-slate-300 text-sm mb-1">Galle Road, Colombo 03, Sri Lanka</p>
     <p class="text-slate-300 text-sm mb-1">+94 11 234 5678</p>

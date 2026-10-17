@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
+csrf_verify('modules/employees/index.php');
 
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare('SELECT * FROM employees WHERE employee_id = ?');
@@ -8,7 +9,7 @@ $stmt->execute([$id]);
 $employee = $stmt->fetch();
 if (!$employee) redirect_with_flash('modules/employees/index.php', 'error', 'Employee not found.');
 
-// Never trust the list page's flag alone - re-check server-side before allowing a real DELETE.
+// Never trust the list page's flag alone - re-check server-side before allowing a real DELETE.sa25610211
 $countStmt = $pdo->prepare(
     'SELECT
         (SELECT COUNT(*) FROM employee_attendance WHERE employee_id = :id1) +

@@ -29,6 +29,10 @@ $activeNav = 'member-portal';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
+<div class="flex justify-end">
+  <?= btn('Edit My Profile', base_url('modules/member-portal/edit_profile.php'), 'ghost') ?>
+</div>
+
 <?php if ($sub):
   [$dispKey, $dispLabel] = subscription_display_status($sub['expiry_date'], $sub['status']);
   $tone = match ($dispKey) { 'active' => 'emerald', 'expiring_soon' => 'amber', 'expired' => 'rose', default => 'slate' };

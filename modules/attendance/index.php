@@ -4,7 +4,7 @@ require_role(['admin']);
 
 $employees = $pdo->query("SELECT employee_id, employee_code, full_name FROM employees WHERE status != 'inactive' ORDER BY full_name")->fetchAll();
 
-$today = $pdo->query("SELECT a.*, e.full_name, e.employee_code FROM employee_attendance a
+$today = $pdo->query("SELECT a.*, e.full_name, e.employee_code, CURTIME() AS now_time FROM employee_attendance a
                        JOIN employees e ON e.employee_id = a.employee_id
                        WHERE a.attendance_date = CURDATE() ORDER BY a.check_in_time DESC")->fetchAll();
 
@@ -12,12 +12,13 @@ $leaves = $pdo->query("SELECT l.*, e.full_name, e.employee_code FROM employee_le
                         JOIN employees e ON e.employee_id = l.employee_id
                         ORDER BY l.leave_id DESC LIMIT 15")->fetchAll();
 
+
+
 $pendingLeave = count(array_filter($leaves, fn($l) => $l['status'] === 'pending'));
 
 $pageTitle = 'Staff Attendance & Leave';
-$pageSubtitle = 'Daily check-ins & leave requests for cleaners, receptionists and maintenance staff (FR-07, BR-15, BR-17)';
+$pageSubtitle = 'Daily check-in / check-out, hours worked & leave requests for cleaners, receptionists and maintenance staff';
 $activeNav = 'attendance';
-$ownerTag = 'Hasith';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
@@ -31,6 +32,7 @@ require __DIR__ . '/../../includes/layout_start.php';
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
     <h3 class="font-extrabold mb-4">Record Today's Check-in</h3>
     <form method="post" action="<?= e(base_url('modules/attendance/check_in.php')) ?>" class="flex gap-2 mb-5">
+      <?= csrf_field() ?>
       <select name="employee_id" required class="flex-1 border border-slate-200 rounded-[10px] px-3 py-2.5 text-sm">
         <option value="">Select employee</option>
         <?php foreach ($employees as $emp): ?>
@@ -39,12 +41,29 @@ require __DIR__ . '/../../includes/layout_start.php';
       </select>
       <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2.5 rounded-[10px] whitespace-nowrap">Check In</button>
     </form>
-    <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Today's Check-ins</h4>
+    <h4 class="text-xs font-bold text-slate-400 uppercase mb-2">Today's Check-ins &amp; Hours Worked</h4>
     <div class="space-y-2 max-h-72 overflow-y-auto">
-      <?php foreach ($today as $t): ?>
-        <div class="flex items-center justify-between text-sm border-b border-slate-100 pb-2">
-          <span class="font-medium text-slate-700"><?= e($t['full_name']) ?> <span class="text-teal-600 text-xs font-bold"><?= e($t['employee_code']) ?></span></span>
-          <span class="text-slate-500"><?= e(date('h:i A', strtotime($t['check_in_time']))) ?></span>
+      <?php foreach ($today as $t):
+        $checkedOut = $t['check_out_time'] !== null;
+        $hours = worked_time($t['check_in_time'], $checkedOut ? $t['check_out_time'] : $t['now_time']);
+      ?>
+        <div class="flex items-center justify-between gap-3 text-sm border-b border-slate-100 pb-2">
+          <span class="min-w-0">
+            <span class="font-medium text-slate-700"><?= e($t['full_name']) ?></span>
+            <span class="text-teal-600 text-xs font-bold"><?= e($t['employee_code']) ?></span>
+            <?= $checkedOut ? status_badge($hours . ' worked', 'emerald') : status_badge($hours . ' so far', 'amber') ?>
+            <span class="block text-xs text-slate-500 mt-0.5">
+              In <?= e(date('h:i A', strtotime($t['check_in_time']))) ?>
+              <?php if ($checkedOut): ?>&middot; Out <?= e(date('h:i A', strtotime($t['check_out_time']))) ?><?php else: ?>&middot; Still on shift<?php endif; ?>
+            </span>
+          </span>
+          <?php if (!$checkedOut): ?>
+            <form method="post" action="<?= e(base_url('modules/attendance/check_out.php')) ?>" class="shrink-0">
+              <?= csrf_field() ?>
+              <input type="hidden" name="attendance_id" value="<?= (int) $t['attendance_id'] ?>">
+              <button class="bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold px-3 py-2 rounded-[10px] whitespace-nowrap">Check Out</button>
+            </form>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
       <?php if (!$today): ?><p class="text-slate-400 text-sm">No check-ins recorded yet today.</p><?php endif; ?>
@@ -68,8 +87,8 @@ require __DIR__ . '/../../includes/layout_start.php';
           <p class="text-xs text-slate-500 mt-1 capitalize"><?= e($l['leave_type']) ?> leave &middot; <?= e(date('d M', strtotime($l['start_date']))) ?> - <?= e(date('d M Y', strtotime($l['end_date']))) ?></p>
           <?php if ($l['status'] === 'pending'): ?>
             <div class="flex gap-3 mt-2">
-              <a href="<?= e(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=approve')) ?>" class="text-emerald-600 text-xs font-bold">Approve</a>
-              <a href="<?= e(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=reject')) ?>" class="text-rose-500 text-xs font-bold">Reject</a>
+              <a href="<?= e(csrf_url(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=approve'))) ?>" class="text-emerald-600 text-xs font-bold">Approve</a>
+              <a href="<?= e(csrf_url(base_url('modules/attendance/leave_action.php?id=' . $l['leave_id'] . '&action=reject'))) ?>" class="text-rose-500 text-xs font-bold">Reject</a>
             </div>
           <?php endif; ?>
         </div>

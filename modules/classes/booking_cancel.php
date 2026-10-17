@@ -4,11 +4,16 @@ require_role(['admin']);
 
 $id = (int) ($_GET['id'] ?? 0);
 $classId = (int) ($_GET['class_id'] ?? 0);
+csrf_verify('modules/classes/bookings.php?class_id=' . $classId);
 
 
 $stmt = $pdo->prepare("SELECT b.*, c.class_date, c.start_time FROM bookings b JOIN classes c ON c.class_id = b.class_id WHERE b.booking_id = ?");
 $stmt->execute([$id]);
 $booking = $stmt->fetch();
+
+if ($booking && $booking['status'] !== 'booked') {
+    redirect_with_flash('modules/classes/bookings.php?class_id=' . $classId, 'error', 'This booking is already ' . $booking['status'] . '.');
+}
 
 if ($booking) {
     // BR-12: members may cancel only when >= 2 hours remain before the session.
@@ -17,7 +22,7 @@ if ($booking) {
     $hoursLeft = ($sessionStart - time()) / 3600;
 
     if ($hoursLeft < 2) {
-        redirect_with_flash('modules/classes/bookings.php?class_id=' . $classId, 'error', 'Cannot cancel: less than 2 hours remain before the session (BR-12).');
+        redirect_with_flash('modules/classes/bookings.php?class_id=' . $classId, 'error', 'Cannot cancel: less than 2 hours remain before the session.');
     }
 
     $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?")->execute([$id]);
