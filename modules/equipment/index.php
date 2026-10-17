@@ -16,11 +16,13 @@ require __DIR__ . '/../../includes/layout_start.php';
 
 
 
+  <!-- #region -->
 <div class="grid grid-cols-3 gap-4">
   <?= kpi_card('Total Equipment', (string) count($equipment)) ?>
   <?= kpi_card('Available', (string) $available, '', 'text-emerald-600') ?>
   <?= kpi_card('Under Maintenance', (string) $maintenance, '', 'text-amber-600') ?>
-</div>
+</div> 
+<!-- #region -->
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
   <table class="w-full text-sm">
