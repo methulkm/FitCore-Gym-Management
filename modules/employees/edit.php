@@ -2,6 +2,9 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
+const EMP_ROLES = ['cleaner' => 'Cleaner', 'receptionist' => 'Receptionist', 'maintenance' => 'Maintenance'];
+const EMP_SHIFTS = ['morning' => 'Morning (06:00-14:00)', 'evening' => 'Evening (14:00-22:00)', 'general' => 'General'];
+
 $id = (int) ($_GET['id'] ?? 0);
 $stmt = $pdo->prepare('SELECT * FROM employees WHERE employee_id = ?');
 $stmt->execute([$id]);
@@ -14,11 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $fullName = trim($_POST['full_name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $jobRole = $_POST['job_role'] ?? '';
-    $shift = $_POST['shift'] ?? 'general';
+    $shift = $_POST['shift'] ?? '';
 
     v_push($errors, v_required($fullName, 'Full name'));
+    v_push($errors, v_person_name($fullName));
     v_push($errors, v_required($phone, 'Phone number'));
     v_push($errors, v_phone($phone));
+    v_push($errors, v_in($jobRole, array_keys(EMP_ROLES), 'job role'));
+    v_push($errors, v_in($shift, array_keys(EMP_SHIFTS), 'shift'));
 
     if (!$errors) {
         $pdo->prepare('UPDATE employees SET full_name=?, phone=?, job_role=?, shift=? WHERE employee_id=?')
@@ -29,7 +35,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'Edit Employee';
 $activeNav = 'employees';
-$ownerTag = 'Hasith';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
@@ -41,18 +46,18 @@ require __DIR__ . '/../../includes/layout_start.php';
     <?= csrf_field() ?>
     <div>
       <label class="text-xs font-bold text-slate-500">Full Name</label>
-      <input name="full_name" required value="<?= e($_POST['full_name'] ?? $emp['full_name']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="full_name" required maxlength="120" value="<?= e(old('full_name', $emp['full_name'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="text-xs font-bold text-slate-500">Phone</label>
-        <input name="phone" required value="<?= e($_POST['phone'] ?? $emp['phone']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <input name="phone" required maxlength="12" value="<?= e(old('phone', $emp['phone'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
       </div>
       <div>
         <label class="text-xs font-bold text-slate-500">Job Role</label>
         <select name="job_role" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
-          <?php foreach (['cleaner', 'receptionist', 'maintenance'] as $r): ?>
-            <option value="<?= $r ?>" <?= $emp['job_role'] === $r ? 'selected' : '' ?>><?= ucfirst($r) ?></option>
+          <?php foreach (EMP_ROLES as $val => $label): ?>
+            <option value="<?= e($val) ?>"<?= selected($val, old('job_role', $emp['job_role'])) ?>><?= e($label) ?></option>
           <?php endforeach; ?>
         </select>
       </div>
@@ -60,8 +65,8 @@ require __DIR__ . '/../../includes/layout_start.php';
     <div>
       <label class="text-xs font-bold text-slate-500">Shift</label>
       <select name="shift" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
-        <?php foreach (['morning' => 'Morning (06:00-14:00)', 'evening' => 'Evening (14:00-22:00)', 'general' => 'General'] as $val => $label): ?>
-          <option value="<?= $val ?>" <?= $emp['shift'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+        <?php foreach (EMP_SHIFTS as $val => $label): ?>
+          <option value="<?= e($val) ?>"<?= selected($val, old('shift', $emp['shift'])) ?>><?= e($label) ?></option>
         <?php endforeach; ?>
       </select>
     </div>

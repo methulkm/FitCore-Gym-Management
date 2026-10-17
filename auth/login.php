@@ -2,20 +2,24 @@
 require_once __DIR__ . '/../includes/bootstrap.php';
 
 $role = $_POST['role'] ?? $_GET['role'] ?? 'admin';
+if (!in_array($role, ['admin', 'member', 'trainer'], true)) $role = 'admin';
 $error = flash('error');
 
 // UC-01: only Admin, Member, Trainer accounts exist and can log in (no visitor login, no self-registration).
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify();
-    $email = trim($_POST['email'] ?? '');
+    $email = strtolower(trim($_POST['email'] ?? ''));
     $password = $_POST['password'] ?? '';
-    $role = $_POST['role'] ?? 'admin';
 
     $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ? AND role = ? LIMIT 1');
     $stmt->execute([$email, $role]);
     $user = $stmt->fetch();
 
-    if (!$user) {
+    if ($email === '' || $password === '') {
+        $error = 'Please enter your email and password.';
+    } elseif (v_email($email)) {
+        $error = 'Please enter a valid email address.';
+    } elseif (!$user) {
         $error = 'No account found for that email under the selected role.';
     } elseif ($user['status'] !== 'active') {
         // UC-01 alternate path: inactive accounts denied login, told to contact admin.
@@ -97,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <input type="hidden" name="role" value="<?= e($role) ?>">
         <div>
           <label class="text-xs font-bold text-slate-500">Email</label>
-          <input type="email" name="email" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-teal-500" placeholder="you@fitcore.lk">
+          <input type="email" name="email" required maxlength="150" value="<?= e(strtolower(trim($_POST['email'] ?? ''))) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm focus:outline-none focus:border-teal-500" placeholder="you@fitcore.lk">
         </div>
         <div>
           <div class="flex items-center justify-between">

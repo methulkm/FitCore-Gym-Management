@@ -13,18 +13,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/payments/submit.php');
     $memberId = (int) ($_POST['member_id'] ?? 0);
     $planId = (int) ($_POST['plan_id'] ?? 0);
-    $amount = (float) ($_POST['amount'] ?? 0);
-    $transferDate = $_POST['transfer_date'] ?? '';
-    $refNumber = trim($_POST['reference_number'] ?? '');
+    $amountRaw = trim($_POST['amount'] ?? '');
+    $amount = (float) $amountRaw;
+    $transferDate = trim($_POST['transfer_date'] ?? '');
+    $refNumber = strtoupper(trim($_POST['reference_number'] ?? ''));
 
-    if (!$memberId) $errors[] = 'Please choose a member.';
-    if (!$planId) $errors[] = 'Please choose a plan.';
-    if ($amount <= 0) $errors[] = 'Amount must be greater than 0.';
-    if (!$transferDate) $errors[] = 'Transfer date is required.';
-    if ($refNumber === '') $errors[] = 'Reference number is required.';
+    $planPrices = array_column($plans, 'price', 'plan_id');
+    if (!in_array($memberId, array_map('intval', array_column($members, 'member_id')), true)) $errors[] = 'Please choose an active member.';
+    if (!isset($planPrices[$planId])) $errors[] = 'Please choose an active plan.';
+    v_push($errors, v_required($amountRaw, 'Amount'));
+    $amountErr = v_money($amountRaw, 'Amount');
+    if ($amountErr) {
+        $errors[] = $amountErr;
+    } elseif ($amountRaw !== '' && isset($planPrices[$planId]) && round($amount, 2) !== round((float) $planPrices[$planId], 2)) {
+        $errors[] = 'Amount must match the selected plan price (LKR ' . number_format((float) $planPrices[$planId], 2) . ').';
+    }
+
+    v_push($errors, v_required($transferDate, 'Transfer date'));
+    $dateErr = v_date($transferDate, 'Transfer date');
+    if ($dateErr) {
+        $errors[] = $dateErr;
+    } elseif ($transferDate > date('Y-m-d')) {
+        $errors[] = 'Transfer date cannot be in the future.';
+    } elseif ($transferDate !== '' && $transferDate < date('Y-m-d', strtotime('-90 days'))) {
+        $errors[] = 'Transfer date cannot be more than 90 days ago.';
+    }
+
+    v_push($errors, v_required($refNumber, 'Reference number'));
+    $refErr = v_reference($refNumber);
+    if ($refErr) {
+        $errors[] = $refErr;
+    } elseif ($refNumber !== '') {
+        $dupRef = $pdo->prepare("SELECT payment_code FROM payments WHERE reference_number = ? AND status <> 'rejected'");
+        $dupRef->execute([$refNumber]);
+        if ($code = $dupRef->fetchColumn()) $errors[] = "This reference number was already submitted ({$code}).";
+    }
 
     $slipPath = null;
-    if (empty($_FILES['slip']) || $_FILES['slip']['error'] === UPLOAD_ERR_NO_FILE) {
+    $noSlip = empty($_FILES['slip']) || $_FILES['slip']['error'] === UPLOAD_ERR_NO_FILE;
+    if ($errors) {
+        // Don't store the uploaded slip at all while other fields are still wrong - just say if it's missing.
+        if ($noSlip) $errors[] = 'Please attach the bank transfer slip.';
+    } elseif ($noSlip) {
         $errors[] = 'Please attach the bank transfer slip.';
     } elseif ($_FILES['slip']['error'] !== UPLOAD_ERR_OK) {
         $errors[] = 'Slip upload failed. Please try again.';
@@ -66,7 +96,6 @@ $recent = $pdo->query("SELECT p.*, m.full_name, m.member_code FROM payments p JO
 $pageTitle = 'Payment Submission';
 $pageSubtitle = 'Bank transfer slip upload, reference number, commercial bank details (FR-12, FR-16, FR-18, NFR-P04, UC-12)';
 $activeNav = 'payment-submission';
-$ownerTag = 'Asiri';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
@@ -82,27 +111,27 @@ require __DIR__ . '/../../includes/layout_start.php';
         <label class="text-xs font-bold text-slate-500">Member</label>
         <select name="member_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
           <option value="">Select member</option>
-          <?php foreach ($members as $m): ?><option value="<?= (int) $m['member_id'] ?>"><?= e($m['member_code'] . ' - ' . $m['full_name']) ?></option><?php endforeach; ?>
+          <?php foreach ($members as $m): ?><option value="<?= (int) $m['member_id'] ?>"<?= selected($m['member_id'], old('member_id')) ?>><?= e($m['member_code'] . ' - ' . $m['full_name']) ?></option><?php endforeach; ?>
         </select>
       </div>
       <div>
         <label class="text-xs font-bold text-slate-500">Plan</label>
         <select name="plan_id" id="plan_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
           <option value="">Select plan</option>
-          <?php foreach ($plans as $p): ?><option value="<?= (int) $p['plan_id'] ?>" data-price="<?= (float) $p['price'] ?>"><?= e($p['plan_name']) ?> (LKR <?= number_format($p['price']) ?>)</option><?php endforeach; ?>
+          <?php foreach ($plans as $p): ?><option value="<?= (int) $p['plan_id'] ?>"<?= selected($p['plan_id'], old('plan_id')) ?> data-price="<?= (float) $p['price'] ?>"><?= e($p['plan_name']) ?> (LKR <?= number_format($p['price']) ?>)</option><?php endforeach; ?>
         </select>
       </div>
       <div>
         <label class="text-xs font-bold text-slate-500">Amount (LKR)</label>
-        <input type="number" step="0.01" name="amount" id="amount" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <input type="number" step="0.01" min="0.01" max="1000000" name="amount" id="amount" required value="<?= e(old('amount')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
       </div>
       <div>
         <label class="text-xs font-bold text-slate-500">Transfer Date</label>
-        <input type="date" name="transfer_date" required value="<?= e(date('Y-m-d')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <input type="date" name="transfer_date" required max="<?= e(date('Y-m-d')) ?>" value="<?= e(old('transfer_date', date('Y-m-d'))) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
       </div>
       <div class="col-span-2">
         <label class="text-xs font-bold text-slate-500">Reference Number</label>
-        <input name="reference_number" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <input name="reference_number" required maxlength="40" value="<?= e(old('reference_number')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
       </div>
       <div class="col-span-2">
         <label class="text-xs font-bold text-slate-500">Slip (JPG, PNG or PDF, max 5MB)</label>

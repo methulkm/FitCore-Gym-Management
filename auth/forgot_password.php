@@ -11,7 +11,10 @@ $success = null;
 $email = trim($_POST['email'] ?? '');
 $question = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'email') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'email' && ($emailErr = v_email($email) ?? ($email === '' ? 'Please enter your account email.' : null))) {
+    csrf_verify('auth/forgot_password.php');
+    $error = $emailErr;
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'email') {
     csrf_verify('auth/forgot_password.php');
     $stmt = $pdo->prepare('SELECT security_question FROM users WHERE email = ?');
     $stmt->execute([$email]);
@@ -42,8 +45,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $stage === 'answer') {
     } elseif (!password_verify(strtolower($answer), $user['security_answer_hash'])) {
         $error = 'That answer is incorrect.';
         $stage = 'answer';
-    } elseif (strlen($newPassword) < 8) {
-        $error = 'New password must be at least 8 characters.';
+    } elseif ($pwErr = v_password($newPassword)) {
+        $error = 'New p' . substr($pwErr, 1);
         $stage = 'answer';
     } elseif ($newPassword !== $confirm) {
         $error = 'New password and confirmation do not match.';

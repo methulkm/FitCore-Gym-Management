@@ -8,7 +8,6 @@ function render_sidebar(string $active): void {
     $groups = [
         [
             'label' => 'USER PORTALS',
-            'owner' => null,
             'items' => [
                 ['key' => 'public',          'label' => 'Public Gym Website',     'href' => base_url('public/index.php'), 'icon' => 'globe'],
                 ['key' => 'member-portal',   'label' => 'Member Dashboard Portal', 'href' => base_url('modules/member-portal/index.php'), 'icon' => 'user'],
@@ -17,59 +16,51 @@ function render_sidebar(string $active): void {
         ],
         [
             'label' => 'ADMIN MANAGEMENT',
-            'owner' => null,
             'items' => [
-                ['key' => 'dashboard', 'label' => '12. Dashboard & Reports', 'href' => base_url('modules/dashboard/index.php'), 'icon' => 'grid', 'owner' => 'Janith'],
-                ['key' => 'reports', 'label' => 'Reports & Export', 'href' => base_url('modules/dashboard/reports.php'), 'icon' => 'doc', 'owner' => 'Janith'],
+                ['key' => 'dashboard', 'label' => 'Dashboard & Reports', 'href' => base_url('modules/dashboard/index.php'), 'icon' => 'grid'],
+                ['key' => 'reports', 'label' => 'Reports & Export', 'href' => base_url('modules/dashboard/reports.php'), 'icon' => 'doc'],
                 ['key' => 'notifications', 'label' => 'Notifications', 'href' => base_url('modules/notifications/index.php'), 'icon' => 'bell'],
                 ['key' => 'enquiries', 'label' => 'Visitor Enquiries', 'href' => base_url('modules/enquiries/index.php'), 'icon' => 'doc'],
             ],
         ],
         [
-            'label' => 'MEMBERS & AUTH',
-            'owner' => 'Sajatha',
+            'label' => 'MEMBERS',
             'items' => [
-                ['key' => 'login',   'label' => '01. Login Screen',      'href' => base_url('auth/login.php'), 'icon' => 'login'],
-                ['key' => 'members', 'label' => '02. Member Management', 'href' => base_url('modules/members/index.php'), 'icon' => 'users'],
+                ['key' => 'members', 'label' => 'Member Management', 'href' => base_url('modules/members/index.php'), 'icon' => 'users'],
             ],
         ],
         [
             'label' => 'STAFF & ATTENDANCE',
-            'owner' => 'Hasith',
             'items' => [
-                ['key' => 'employees',  'label' => '03. Employee Directory',      'href' => base_url('modules/employees/index.php'), 'icon' => 'id'],
-                ['key' => 'attendance', 'label' => '04. Staff Attendance & Leave','href' => base_url('modules/attendance/index.php'), 'icon' => 'calendar'],
+                ['key' => 'employees',  'label' => 'Employee Directory',      'href' => base_url('modules/employees/index.php'), 'icon' => 'id'],
+                ['key' => 'attendance', 'label' => 'Staff Attendance & Leave','href' => base_url('modules/attendance/index.php'), 'icon' => 'calendar'],
             ],
         ],
         [
             'label' => 'TRAINERS & CLASSES',
-            'owner' => 'Senuka',
             'items' => [
-                ['key' => 'trainers', 'label' => '05. Trainers & Schedule', 'href' => base_url('modules/trainers/index.php'), 'icon' => 'award'],
-                ['key' => 'classes',  'label' => '06. Class / PT Booking',  'href' => base_url('modules/classes/index.php'), 'icon' => 'clock'],
+                ['key' => 'trainers', 'label' => 'Trainers & Schedule', 'href' => base_url('modules/trainers/index.php'), 'icon' => 'award'],
+                ['key' => 'classes',  'label' => 'Class / PT Booking',  'href' => base_url('modules/classes/index.php'), 'icon' => 'clock'],
             ],
         ],
         [
             'label' => 'PLANS & RENEWALS',
-            'owner' => 'Methul',
             'items' => [
-                ['key' => 'plans',         'label' => '07. Membership Plans',      'href' => base_url('modules/plans/index.php'), 'icon' => 'layers'],
-                ['key' => 'subscriptions', 'label' => '08. Subscriptions & Renewal','href' => base_url('modules/subscriptions/index.php'), 'icon' => 'refresh'],
+                ['key' => 'plans',         'label' => 'Membership Plans',      'href' => base_url('modules/plans/index.php'), 'icon' => 'layers'],
+                ['key' => 'subscriptions', 'label' => 'Subscriptions & Renewal','href' => base_url('modules/subscriptions/index.php'), 'icon' => 'refresh'],
             ],
         ],
         [
             'label' => 'PAYMENTS',
-            'owner' => 'Asiri',
             'items' => [
-                ['key' => 'payment-submission',  'label' => '09. Payment Submission',   'href' => base_url('modules/payments/submit.php'), 'icon' => 'card'],
-                ['key' => 'payment-verification', 'label' => '10. Payment Verification', 'href' => base_url('modules/payments/index.php'), 'icon' => 'doc'],
+                ['key' => 'payment-submission',  'label' => 'Payment Submission',   'href' => base_url('modules/payments/submit.php'), 'icon' => 'card'],
+                ['key' => 'payment-verification', 'label' => 'Payment Verification', 'href' => base_url('modules/payments/index.php'), 'icon' => 'doc'],
             ],
         ],
         [
             'label' => 'EQUIPMENT',
-            'owner' => 'Janith',
             'items' => [
-                ['key' => 'equipment', 'label' => '11. Equipment & Maintenance', 'href' => base_url('modules/equipment/index.php'), 'icon' => 'tool'],
+                ['key' => 'equipment', 'label' => 'Equipment & Maintenance', 'href' => base_url('modules/equipment/index.php'), 'icon' => 'tool'],
             ],
         ],
     ];
@@ -97,9 +88,6 @@ function render_sidebar(string $active): void {
                 <div>
                     <div class="px-3 mb-1.5 flex items-center justify-between">
                         <span class="text-[10px] font-bold tracking-widest text-slate-400"><?= e($group['label']) ?></span>
-                        <?php if ($group['owner']): ?>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-500"><?= e(strtoupper($group['owner'])) ?></span>
-                        <?php endif; ?>
                     </div>
                     <?php foreach ($group['items'] as $item):
                         $isActive = $item['key'] === $active; ?>
@@ -107,9 +95,6 @@ function render_sidebar(string $active): void {
                            class="flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-[13px] font-medium mb-0.5 transition <?= $isActive ? 'bg-teal-50 text-teal-700 font-bold' : 'text-slate-600 hover:bg-slate-50' ?>">
                             <span class="w-4 h-4 shrink-0"><?= sidebar_icon($item['icon']) ?></span>
                             <span class="flex-1"><?= e($item['label']) ?></span>
-                            <?php if (!empty($item['owner'])): ?>
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400"><?= e(strtoupper($item['owner'])) ?></span>
-                            <?php endif; ?>
                         </a>
                     <?php endforeach; ?>
                 </div>

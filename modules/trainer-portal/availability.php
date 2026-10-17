@@ -15,8 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $startTime = $_POST['start_time'] ?? '';
     $endTime = $_POST['end_time'] ?? '';
 
-    if (!$dayDate || !$startTime || !$endTime) $errors[] = 'All fields are required.';
-    elseif ($endTime <= $startTime) $errors[] = 'End time must be after start time.'; // UC-06 validation
+    $errors = array_merge($errors, validate_availability_slot($pdo, (int) $trainer['trainer_id'], $dayDate, $startTime, $endTime));
 
     if (!$errors) {
         // Trainer can only ever insert a slot against their own trainer_id (from session), never one passed in from the form.
@@ -44,16 +43,16 @@ require __DIR__ . '/../../includes/layout_start.php';
       <?= csrf_field() ?>
       <div>
         <label class="text-xs font-bold text-slate-500">Day / Date</label>
-        <input type="date" name="day_date" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <input type="date" name="day_date" required min="<?= e(date('Y-m-d')) ?>" value="<?= e(old('day_date')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="text-xs font-bold text-slate-500">Start Time</label>
-          <input type="time" name="start_time" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+          <input type="time" name="start_time" required min="05:00" max="23:00" value="<?= e(old('start_time')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
         </div>
         <div>
           <label class="text-xs font-bold text-slate-500">End Time</label>
-          <input type="time" name="end_time" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+          <input type="time" name="end_time" required min="05:00" max="23:00" value="<?= e(old('end_time')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
         </div>
       </div>
       <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-[10px] px-5 py-2.5 text-sm">Add Slot</button>

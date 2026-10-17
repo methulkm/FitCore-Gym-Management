@@ -10,10 +10,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/subscriptions/create.php');
     $memberId = (int) ($_POST['member_id'] ?? 0);
     $planId = (int) ($_POST['plan_id'] ?? 0);
-    $startDate = $_POST['start_date'] ?: date('Y-m-d');
+    $startDate = trim($_POST['start_date'] ?? '') ?: date('Y-m-d');
 
-    if (!$memberId) $errors[] = 'Please choose a member.';
-    if (!$planId) $errors[] = 'Please choose a plan.';
+    if (!in_array($memberId, array_map('intval', array_column($members, 'member_id')), true)) $errors[] = 'Please choose an active member.';
+    if (!in_array($planId, array_map('intval', array_column($plans, 'plan_id')), true)) $errors[] = 'Please choose an active plan.';
+    v_push($errors, v_date($startDate, 'Start date'));
+    if (!v_date($startDate, 'Start date')) {
+        if ($startDate < date('Y-m-d', strtotime('-30 days'))) $errors[] = 'Start date cannot be more than 30 days in the past.';
+        elseif ($startDate > date('Y-m-d', strtotime('+90 days'))) $errors[] = 'Start date cannot be more than 90 days ahead.';
+    }
+
+    if (!$errors) {
+        // A member holds one running membership at a time - extending it is what Renew (BR-09) is for.
+        $running = $pdo->prepare("SELECT expiry_date FROM subscriptions WHERE member_id = ? AND status = 'active' AND expiry_date >= CURDATE() ORDER BY expiry_date DESC LIMIT 1");
+        $running->execute([$memberId]);
+        if ($exp = $running->fetchColumn()) {
+            $errors[] = 'This member already has an active membership until ' . date('d M Y', strtotime($exp)) . '. Use Renew to extend it instead.';
+        }
+    }
 
     if (!$errors) {
         $stmt = $pdo->prepare('SELECT duration_months FROM membership_plans WHERE plan_id = ?');
@@ -30,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'New Subscription';
 $activeNav = 'subscriptions';
-$ownerTag = 'Methul';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
@@ -44,7 +57,7 @@ require __DIR__ . '/../../includes/layout_start.php';
       <select name="member_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
         <option value="">Select a member</option>
         <?php foreach ($members as $m): ?>
-          <option value="<?= (int) $m['member_id'] ?>"><?= e($m['member_code'] . ' - ' . $m['full_name']) ?></option>
+          <option value="<?= (int) $m['member_id'] ?>"<?= selected($m['member_id'], old('member_id')) ?>><?= e($m['member_code'] . ' - ' . $m['full_name']) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
@@ -53,13 +66,13 @@ require __DIR__ . '/../../includes/layout_start.php';
       <select name="plan_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
         <option value="">Select a plan</option>
         <?php foreach ($plans as $p): ?>
-          <option value="<?= (int) $p['plan_id'] ?>"><?= e($p['plan_name'] . ' (' . $p['duration_months'] . 'M - LKR ' . number_format($p['price']) . ')') ?></option>
+          <option value="<?= (int) $p['plan_id'] ?>"<?= selected($p['plan_id'], old('plan_id')) ?>><?= e($p['plan_name'] . ' (' . $p['duration_months'] . 'M - LKR ' . number_format($p['price']) . ')') ?></option>
         <?php endforeach; ?>
       </select>
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Start Date</label>
-      <input type="date" name="start_date" value="<?= e(date('Y-m-d')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input type="date" name="start_date" min="<?= e(date('Y-m-d', strtotime('-30 days'))) ?>" max="<?= e(date('Y-m-d', strtotime('+90 days'))) ?>" value="<?= e(old('start_date', date('Y-m-d'))) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="flex gap-3 pt-2">
       <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-[10px] px-5 py-2.5 text-sm">Create Subscription</button>

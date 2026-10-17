@@ -7,33 +7,42 @@ $stmt = $pdo->prepare('SELECT * FROM classes WHERE class_id = ?');
 $stmt->execute([$id]);
 $class = $stmt->fetch();
 if (!$class) redirect_with_flash('modules/classes/index.php', 'error', 'Class not found.');
+if ($class['status'] !== 'scheduled') redirect_with_flash('modules/classes/index.php', 'error', 'Only scheduled classes can be edited (this one is ' . $class['status'] . ').');
 
 $trainers = $pdo->query("SELECT trainer_id, full_name FROM trainers WHERE status = 'active' ORDER BY full_name")->fetchAll();
+$activeTrainerIds = array_map('intval', array_column($trainers, 'trainer_id'));
+
+$bookedStmt = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE class_id = ? AND status = 'booked'");
+$bookedStmt->execute([$id]);
+$bookedCount = (int) $bookedStmt->fetchColumn();
+
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/classes/index.php');
     $className = trim($_POST['class_name'] ?? '');
     $trainerId = (int) ($_POST['trainer_id'] ?? 0);
-    $classDate = $_POST['class_date'] ?? '';
-    $startTime = $_POST['start_time'] ?? '';
-    $duration = (int) ($_POST['duration_minutes'] ?? 60);
-    $capacity = (int) ($_POST['capacity'] ?? 0);
+    $classDate = trim($_POST['class_date'] ?? '');
+    $startTime = trim($_POST['start_time'] ?? '');
+    $duration = trim($_POST['duration_minutes'] ?? '');
+    $capacity = trim($_POST['capacity'] ?? '');
 
-    v_push($errors, v_required($className, 'Class name'));
-    v_push($errors, v_positive_int($duration, 'Duration'));
-    v_push($errors, v_positive_int($capacity, 'Capacity'));
+    $timeChanged = $classDate !== $class['class_date'] || substr($startTime, 0, 5) !== substr($class['start_time'], 0, 5);
+    $errors = validate_class_form($pdo, $activeTrainerIds, $className, $trainerId, $classDate, $startTime, $duration, $capacity, $id, $timeChanged);
+
+    if (!$errors && (int) $capacity < $bookedCount) {
+        $errors[] = "Capacity cannot be lower than the {$bookedCount} member(s) already booked into this class.";
+    }
 
     if (!$errors) {
         $pdo->prepare('UPDATE classes SET class_name=?, trainer_id=?, class_date=?, start_time=?, duration_minutes=?, capacity=? WHERE class_id=?')
-            ->execute([$className, $trainerId, $classDate, $startTime, $duration, $capacity, $id]);
+            ->execute([$className, $trainerId, $classDate, $startTime, (int) $duration, (int) $capacity, $id]);
         redirect_with_flash('modules/classes/index.php', 'success', 'Class updated.');
     }
 }
 
 $pageTitle = 'Edit Class';
 $activeNav = 'classes';
-$ownerTag = 'Senuka';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
@@ -44,31 +53,32 @@ require __DIR__ . '/../../includes/layout_start.php';
     <?= csrf_field() ?>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Class Name</label>
-      <input name="class_name" required value="<?= e($_POST['class_name'] ?? $class['class_name']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="class_name" required maxlength="120" value="<?= e(old('class_name', $class['class_name'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Trainer</label>
-      <select name="trainer_id" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <select name="trainer_id" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <option value="">Select a trainer</option>
         <?php foreach ($trainers as $t): ?>
-          <option value="<?= (int) $t['trainer_id'] ?>" <?= $t['trainer_id'] == $class['trainer_id'] ? 'selected' : '' ?>><?= e($t['full_name']) ?></option>
+          <option value="<?= (int) $t['trainer_id'] ?>"<?= selected($t['trainer_id'], old('trainer_id', $class['trainer_id'])) ?>><?= e($t['full_name']) ?></option>
         <?php endforeach; ?>
       </select>
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Date</label>
-      <input type="date" name="class_date" value="<?= e($class['class_date']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input type="date" name="class_date" required value="<?= e(old('class_date', $class['class_date'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Start Time</label>
-      <input type="time" name="start_time" value="<?= e($class['start_time']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input type="time" name="start_time" required min="05:00" max="22:45" value="<?= e(substr(old('start_time', $class['start_time']), 0, 5)) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
-      <label class="text-xs font-bold text-slate-500">Duration (minutes)</label>
-      <input type="number" name="duration_minutes" value="<?= (int) $class['duration_minutes'] ?>" min="15" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <label class="text-xs font-bold text-slate-500">Duration (minutes, 15-180)</label>
+      <input type="number" name="duration_minutes" required min="15" max="180" step="1" value="<?= e(old('duration_minutes', $class['duration_minutes'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
-      <label class="text-xs font-bold text-slate-500">Capacity</label>
-      <input type="number" name="capacity" value="<?= (int) $class['capacity'] ?>" min="1" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <label class="text-xs font-bold text-slate-500">Capacity (<?= $bookedCount ?> already booked)</label>
+      <input type="number" name="capacity" required min="<?= max(1, $bookedCount) ?>" max="100" step="1" value="<?= e(old('capacity', $class['capacity'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="col-span-2 flex gap-3 pt-2">
       <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-[10px] px-5 py-2.5 text-sm">Save Changes</button>

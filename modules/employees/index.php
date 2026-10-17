@@ -27,7 +27,6 @@ $onLeave = count(array_filter($allEmployees, fn($e) => $e['status'] === 'on_leav
 $pageTitle = 'Employee Directory';
 $pageSubtitle = 'Cleaners, receptionists & maintenance staff - shifts, phone numbers, status (FR-04, FR-07, BR-03, BR-17, UC-04)';
 $activeNav = 'employees';
-$ownerTag = 'Hasith';
 $headerActions = btn('+ Add Employee', base_url('modules/employees/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

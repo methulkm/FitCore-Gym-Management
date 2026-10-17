@@ -24,7 +24,6 @@ $locations = $pdo->query("SELECT DISTINCT location FROM equipment WHERE location
 $pageTitle = 'Equipment & Maintenance';
 $pageSubtitle = 'Machine inventory, condition, location and servicing schedule (FR-15, FR-19, BR-18, BR-19, UC-15)';
 $activeNav = 'equipment';
-$ownerTag = 'Janith';
 $headerActions = btn('+ Add Equipment', base_url('modules/equipment/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

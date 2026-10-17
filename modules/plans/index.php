@@ -14,7 +14,6 @@ $plans = $pdo->query(
 $pageTitle = 'Membership Plans';
 $pageSubtitle = 'Manage 1, 3, 6, and 12-month tier plans, pricing and benefits (FR-13, BR-05, BR-06, UC-10)';
 $activeNav = 'plans';
-$ownerTag = 'Methul';
 $headerActions = btn('+ Add Plan', base_url('modules/plans/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

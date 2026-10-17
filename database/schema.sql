@@ -61,7 +61,7 @@ CREATE TABLE employees (
 );
 
 -- ---------------------------------------------------------------------
--- EMPLOYEE ATTENDANCE  (BR-17, mirrors BR-15 pattern: check-in only)
+-- EMPLOYEE ATTENDANCE  (BR-17: check-in, plus check-out so hours worked can be shown)
 -- ---------------------------------------------------------------------
 DROP TABLE IF EXISTS employee_attendance;
 CREATE TABLE employee_attendance (
@@ -69,6 +69,7 @@ CREATE TABLE employee_attendance (
     employee_id   INT NOT NULL,
     attendance_date DATE NOT NULL,
     check_in_time TIME NOT NULL,
+    check_out_time TIME NULL,                        -- NULL while the employee is still on shift
     created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE,
     UNIQUE KEY uq_emp_att (employee_id, attendance_date)

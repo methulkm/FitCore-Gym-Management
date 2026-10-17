@@ -2,18 +2,23 @@
 require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
+const EMP_ROLES = ['cleaner' => 'Cleaner', 'receptionist' => 'Receptionist', 'maintenance' => 'Maintenance'];
+const EMP_SHIFTS = ['morning' => 'Morning (06:00-14:00)', 'evening' => 'Evening (14:00-22:00)', 'general' => 'General'];
+
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/employees/create.php');
     $fullName = trim($_POST['full_name'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
     $jobRole = $_POST['job_role'] ?? '';
-    $shift = $_POST['shift'] ?? 'general';
+    $shift = $_POST['shift'] ?? '';
 
     v_push($errors, v_required($fullName, 'Full name'));
+    v_push($errors, v_person_name($fullName));
     v_push($errors, v_required($phone, 'Phone number'));
     v_push($errors, v_phone($phone));
-    if (!in_array($jobRole, ['cleaner', 'receptionist', 'maintenance'], true)) $errors[] = 'Please choose a valid job role.';
+    v_push($errors, v_in($jobRole, array_keys(EMP_ROLES), 'job role'));   // BR-03: only these three staff types
+    v_push($errors, v_in($shift, array_keys(EMP_SHIFTS), 'shift'));
 
     if (!$errors) {
         $code = next_code($pdo, 'employees', 'employee_code', 'EMP');
@@ -25,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'Add Employee';
 $activeNav = 'employees';
-$ownerTag = 'Hasith';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
@@ -36,29 +40,29 @@ require __DIR__ . '/../../includes/layout_start.php';
     <?= csrf_field() ?>
     <div>
       <label class="text-xs font-bold text-slate-500">Full Name</label>
-      <input name="full_name" required value="<?= e($_POST['full_name'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="full_name" required maxlength="120" value="<?= e(old('full_name')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="grid grid-cols-2 gap-4">
       <div>
         <label class="text-xs font-bold text-slate-500">Phone</label>
-        <input name="phone" required value="<?= e($_POST['phone'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+        <input name="phone" required maxlength="12" placeholder="0771234567" value="<?= e(old('phone')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
       </div>
       <div>
         <label class="text-xs font-bold text-slate-500">Job Role</label>
         <select name="job_role" required class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
           <option value="">Choose...</option>
-          <option value="cleaner">Cleaner</option>
-          <option value="receptionist">Receptionist</option>
-          <option value="maintenance">Maintenance</option>
+          <?php foreach (EMP_ROLES as $val => $label): ?>
+            <option value="<?= e($val) ?>"<?= selected($val, old('job_role')) ?>><?= e($label) ?></option>
+          <?php endforeach; ?>
         </select>
       </div>
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Shift</label>
       <select name="shift" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
-        <option value="morning">Morning (06:00-14:00)</option>
-        <option value="evening">Evening (14:00-22:00)</option>
-        <option value="general" selected>General</option>
+        <?php foreach (EMP_SHIFTS as $val => $label): ?>
+          <option value="<?= e($val) ?>"<?= selected($val, old('shift', 'general')) ?>><?= e($label) ?></option>
+        <?php endforeach; ?>
       </select>
     </div>
     <div class="flex gap-3 pt-2">

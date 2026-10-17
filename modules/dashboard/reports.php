@@ -3,13 +3,13 @@ require_once __DIR__ . '/../../includes/bootstrap.php';
 require_role(['admin']);
 
 $reports = [
-    ['Members',       'modules/members/export.php',       'members',       'Sajatha'],
-    ['Employees',     'modules/employees/export.php',     'employees',     'Hasith'],
-    ['Trainers',      'modules/trainers/export.php',       'trainers',      'Senuka'],
-    ['Classes',       'modules/classes/export.php',       'classes',       'Senuka'],
-    ['Membership Plans & Subscriptions', 'modules/subscriptions/export.php', 'plans-renewals', 'Methul'],
-    ['Payments',      'modules/payments/export.php',       'payments',      'Asiri'],
-    ['Equipment',     'modules/equipment/export.php',      'equipment',     'Janith'],
+    ['Members',       'modules/members/export.php',       'members'],
+    ['Employees',     'modules/employees/export.php',     'employees'],
+    ['Trainers',      'modules/trainers/export.php',       'trainers'],
+    ['Classes',       'modules/classes/export.php',       'classes'],
+    ['Membership Plans & Subscriptions', 'modules/subscriptions/export.php', 'plans-renewals'],
+    ['Payments',      'modules/payments/export.php',       'payments'],
+    ['Equipment',     'modules/equipment/export.php',      'equipment'],
 ];
 
 $counts = [
@@ -29,11 +29,10 @@ require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
 <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
-  <?php foreach ($reports as [$label, $path, $key, $owner]): ?>
+  <?php foreach ($reports as [$label, $path, $key]): ?>
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
       <div class="flex items-start justify-between mb-4">
         <span class="w-11 h-11 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center"><?= sidebar_icon('doc') ?></span>
-        <span class="text-[10px] font-bold px-2 py-1 rounded-full bg-indigo-50 text-indigo-500"><?= e($owner) ?></span>
       </div>
       <p class="font-extrabold text-slate-900 mb-1"><?= e($label) ?></p>
       <p class="text-sm text-slate-500 mb-5"><?= (int) $counts[$key] ?> record(s)</p>

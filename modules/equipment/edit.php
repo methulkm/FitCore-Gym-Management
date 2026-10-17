@@ -15,9 +15,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $supplier = trim($_POST['supplier'] ?? '');
     $condition = trim($_POST['condition_status'] ?? '');
     $location = trim($_POST['location'] ?? '');
-    $status = $_POST['status'] ?? 'available'; // BR-18 enum
+    $status = $_POST['status'] ?? ''; // BR-18 enum
 
-    if ($name === '') $errors[] = 'Equipment name is required.';
+    $errors = validate_equipment_form($name, $supplier, $condition, $location, $status);
 
     if (!$errors) {
         $pdo->prepare('UPDATE equipment SET equipment_name=?, supplier=?, condition_status=?, location=?, status=? WHERE equipment_id=?')
@@ -33,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'Edit Equipment';
 $activeNav = 'equipment';
-$ownerTag = 'Janith';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
@@ -45,25 +44,25 @@ require __DIR__ . '/../../includes/layout_start.php';
     <?= csrf_field() ?>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Equipment Name</label>
-      <input name="equipment_name" required value="<?= e($_POST['equipment_name'] ?? $eq['equipment_name']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="equipment_name" required maxlength="120" value="<?= e(old('equipment_name', $eq['equipment_name'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Supplier</label>
-      <input name="supplier" value="<?= e($_POST['supplier'] ?? $eq['supplier']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="supplier" maxlength="120" value="<?= e(old('supplier', $eq['supplier'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Condition</label>
-      <input name="condition_status" value="<?= e($_POST['condition_status'] ?? $eq['condition_status']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="condition_status" maxlength="60" value="<?= e(old('condition_status', $eq['condition_status'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Location</label>
-      <input name="location" value="<?= e($_POST['location'] ?? $eq['location']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="location" maxlength="60" value="<?= e(old('location', $eq['location'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Status</label>
       <select name="status" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
-        <?php foreach (['available' => 'Available', 'in_use' => 'In Use', 'under_maintenance' => 'Under Maintenance', 'out_of_service' => 'Out of Service'] as $val => $label): ?>
-          <option value="<?= $val ?>" <?= $eq['status'] === $val ? 'selected' : '' ?>><?= $label ?></option>
+        <?php foreach (EQUIPMENT_STATUSES as $val => $label): ?>
+          <option value="<?= e($val) ?>"<?= selected($val, old('status', $eq['status'])) ?>><?= e($label) ?></option>
         <?php endforeach; ?>
       </select>
     </div>

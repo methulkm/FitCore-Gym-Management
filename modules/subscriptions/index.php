@@ -24,7 +24,6 @@ if ($statusFilter !== 'all') {
 $pageTitle = 'Subscription & Renewal Management';
 $pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon alerts & renewals (FR-14, FR-15, BR-04, BR-09)';
 $activeNav = 'subscriptions';
-$ownerTag = 'Methul';
 $headerActions = btn('+ New Subscription', base_url('modules/subscriptions/create.php'));
 require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
 ?>

@@ -25,8 +25,8 @@ $trainers = $pdo->query("SELECT * FROM trainers WHERE status='active' ORDER BY t
           <span class="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center font-extrabold text-2xl text-[#07110F] mb-4"><?= e(strtoupper(substr($t['full_name'],0,2))) ?></span>
         <?php endif; ?>
         <p class="font-extrabold text-lg"><?= e($t['full_name']) ?></p>
-        <span class="inline-block mt-2 mb-3 text-[11px] font-bold px-3 py-1 rounded-full bg-teal-500/15 text-teal-400"><?= e($t['specialization']) ?></span>
-        <p class="text-slate-500 text-xs mb-5"><?= e($t['qualification']) ?></p>
+        <span class="inline-block mt-2 mb-3 text-[11px] font-bold px-3 py-1 rounded-full bg-teal-500/15 text-teal-400"><?= e($t['specialization'] ?: 'Personal Trainer') ?></span>
+        <p class="text-slate-500 text-xs mb-5"><?= e($t['qualification'] ?: "\u{00A0}") ?></p>
         <a href="<?= e(base_url('auth/login.php')) ?>" class="btn-shine inline-flex items-center gap-1.5 text-xs font-bold bg-teal-500 hover:bg-teal-400 text-[#07110F] px-4 py-2.5 rounded-[10px] btn-glow transition">Book 1-on-1 PT <?= gym_icon('arrow', 'w-3.5 h-3.5') ?></a>
       </div>
     <?php endforeach; ?>

@@ -7,12 +7,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/equipment/create.php');
     $name = trim($_POST['equipment_name'] ?? '');
     $supplier = trim($_POST['supplier'] ?? '');
-    $purchaseDate = $_POST['purchase_date'] ?? null;
+    $purchaseDate = trim($_POST['purchase_date'] ?? '');
     $condition = trim($_POST['condition_status'] ?? '');
     $location = trim($_POST['location'] ?? '');
-    $status = $_POST['status'] ?? 'available';
+    $status = $_POST['status'] ?? '';
 
-    if ($name === '') $errors[] = 'Equipment name is required.';
+    $errors = validate_equipment_form($name, $supplier, $condition, $location, $status);
+    $dateErr = v_date($purchaseDate, 'Purchase date');
+    if ($dateErr) $errors[] = $dateErr;
+    elseif ($purchaseDate !== '' && $purchaseDate > date('Y-m-d')) $errors[] = 'Purchase date cannot be in the future.';
 
     if (!$errors) {
         $code = next_code($pdo, 'equipment', 'equipment_code', 'EQP');
@@ -24,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'Add Equipment';
 $activeNav = 'equipment';
-$ownerTag = 'Janith';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
@@ -35,29 +37,29 @@ require __DIR__ . '/../../includes/layout_start.php';
     <?= csrf_field() ?>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Equipment Name</label>
-      <input name="equipment_name" required value="<?= e($_POST['equipment_name'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="equipment_name" required maxlength="120" value="<?= e(old('equipment_name')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Supplier</label>
-      <input name="supplier" value="<?= e($_POST['supplier'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="supplier" maxlength="120" value="<?= e(old('supplier')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Purchase Date</label>
-      <input type="date" name="purchase_date" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input type="date" name="purchase_date" max="<?= e(date('Y-m-d')) ?>" value="<?= e(old('purchase_date')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Condition</label>
-      <input name="condition_status" placeholder="Good, Needs Service..." value="<?= e($_POST['condition_status'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="condition_status" maxlength="60" placeholder="Good, Needs Service..." value="<?= e(old('condition_status')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Location</label>
-      <input name="location" placeholder="Floor 1, Floor 2..." value="<?= e($_POST['location'] ?? '') ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="location" maxlength="60" placeholder="Floor 1, Floor 2..." value="<?= e(old('location')) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Status</label>
       <select name="status" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
-        <?php foreach (['available' => 'Available', 'in_use' => 'In Use', 'under_maintenance' => 'Under Maintenance', 'out_of_service' => 'Out of Service'] as $val => $label): ?>
-          <option value="<?= $val ?>"><?= $label ?></option>
+        <?php foreach (EQUIPMENT_STATUSES as $val => $label): ?>
+          <option value="<?= e($val) ?>"<?= selected($val, old('status', 'available')) ?>><?= e($label) ?></option>
         <?php endforeach; ?>
       </select>
     </div>

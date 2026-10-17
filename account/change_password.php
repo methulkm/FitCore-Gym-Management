@@ -18,7 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $hash = $stmt->fetchColumn();
 
     if (!password_verify($current, $hash)) $errors[] = 'Current password is incorrect.';
-    if (strlen($new) < 8) $errors[] = 'New password must be at least 8 characters.';
+    if ($err = v_password($new)) $errors[] = 'New p' . substr($err, 1);
+    elseif ($new === $current) $errors[] = 'New password must be different from your current password.';
     if ($new !== $confirm) $errors[] = 'New password and confirmation do not match.';
 
     if (!$errors) {
@@ -48,7 +49,7 @@ require __DIR__ . '/../includes/layout_start.php';
     <div>
       <label class="text-xs font-bold text-slate-500">New Password</label>
       <input type="password" name="new_password" required minlength="8" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
-      <p class="text-xs text-slate-400 mt-1">At least 8 characters.</p>
+      <p class="text-xs text-slate-400 mt-1">At least 8 characters, with at least one letter and one number.</p>
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Confirm New Password</label>

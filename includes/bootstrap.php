@@ -1,5 +1,10 @@
 <?php
 // Every protected page starts with: require_once __DIR__ . '/../includes/bootstrap.php';
+
+// XAMPP's PHP defaults to Europe/Berlin while MySQL and the gym run on Sri Lanka time - without
+// this, every "today" / "in the past" / 2-hour-cancellation check is off by 3.5 hours.
+date_default_timezone_set('Asia/Colombo');
+
 if (session_status() === PHP_SESSION_NONE) {
     // Harden the session cookie: JS can't read it (httponly), it isn't sent on cross-site requests
     // like an <img> tag pointing at one of our action links (samesite=Lax), and it only travels over

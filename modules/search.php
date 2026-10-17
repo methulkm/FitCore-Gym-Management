@@ -2,11 +2,12 @@
 require_once __DIR__ . '/../includes/bootstrap.php';
 require_role(['admin']);
 
-$q = trim($_GET['q'] ?? '');
+$q = mb_substr(trim($_GET['q'] ?? ''), 0, 100);
 $results = []; // [group label => [ [title, subtitle, link], ... ] ]
 
 if ($q !== '' && strlen($q) >= 2) {
-    $like = '%' . $q . '%';
+    // Escape LIKE wildcards so typing "%" or "_" searches for those characters instead of matching everything.
+    $like = '%' . addcslashes($q, '%_\\') . '%';
 
     $stmt = $pdo->prepare("SELECT member_id, member_code, full_name, phone, email FROM members
         WHERE full_name LIKE ? OR member_code LIKE ? OR phone LIKE ? OR email LIKE ? LIMIT 8");
@@ -26,7 +27,7 @@ if ($q !== '' && strlen($q) >= 2) {
         WHERE full_name LIKE ? OR trainer_code LIKE ? OR specialization LIKE ? LIMIT 8");
     $stmt->execute([$like, $like, $like]);
     foreach ($stmt->fetchAll() as $r) {
-        $results['Trainers'][] = [$r['full_name'], $r['trainer_code'] . ' - ' . $r['specialization'], base_url('modules/trainers/edit.php?id=' . $r['trainer_id'])];
+        $results['Trainers'][] = [$r['full_name'], $r['trainer_code'] . ($r['specialization'] ? ' - ' . $r['specialization'] : ''), base_url('modules/trainers/edit.php?id=' . $r['trainer_id'])];
     }
 
     $stmt = $pdo->prepare("SELECT equipment_id, equipment_code, equipment_name, location FROM equipment

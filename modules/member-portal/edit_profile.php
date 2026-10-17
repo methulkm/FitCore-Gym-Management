@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // FR-05: member may only edit phone/address - name, NIC, email stay admin-managed.
     v_push($errors, v_required($phone, 'Phone number'));
     v_push($errors, v_phone($phone));
+    v_push($errors, v_free_text($address, 'Address', 255));
 
     if (!$errors) {
         $pdo->prepare('UPDATE members SET phone = ?, address = ? WHERE member_id = ?')
@@ -42,7 +43,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Phone</label>
-      <input name="phone" required value="<?= e($_POST['phone'] ?? $member['phone']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="phone" required maxlength="12" value="<?= e(old('phone', $member['phone'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
       <label class="text-xs font-bold text-slate-500">Email <span class="text-slate-300">(admin managed)</span></label>
@@ -50,7 +51,7 @@ require __DIR__ . '/../../includes/layout_start.php';
     </div>
     <div class="col-span-2">
       <label class="text-xs font-bold text-slate-500">Address</label>
-      <input name="address" value="<?= e($_POST['address'] ?? $member['address']) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
+      <input name="address" maxlength="255" value="<?= e(old('address', $member['address'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div class="col-span-2 flex gap-3 pt-2">
       <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-[10px] px-5 py-2.5 text-sm">Save Changes</button>

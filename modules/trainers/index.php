@@ -25,7 +25,6 @@ $specializations = $pdo->query("SELECT DISTINCT specialization FROM trainers WHE
 $pageTitle = 'Trainers & Schedule Management';
 $pageSubtitle = 'Credentials, specializations, working-hours availability and class assignments (FR-06, FR-08, FR-09, FR-10, UC-05, UC-06)';
 $activeNav = 'trainers';
-$ownerTag = 'Senuka';
 $headerActions = btn('+ Add Trainer', base_url('modules/trainers/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
@@ -61,8 +60,8 @@ require __DIR__ . '/../../includes/layout_start.php';
           <p class="text-teal-600 text-xs font-bold"><?= e($t['trainer_code']) ?></p>
         </div>
       </div>
-      <p class="text-sm text-slate-600 mb-1"><b>Specialization:</b> <?= e($t['specialization']) ?></p>
-      <p class="text-sm text-slate-600 mb-3"><b>Qualification:</b> <?= e($t['qualification']) ?></p>
+      <p class="text-sm text-slate-600 mb-1"><b>Specialization:</b> <?= e($t['specialization'] ?: '-') ?></p>
+      <p class="text-sm text-slate-600 mb-3"><b>Qualification:</b> <?= e($t['qualification'] ?: '-') ?></p>
       <div class="flex items-center justify-between pt-3 border-t border-slate-100">
         <?= status_badge(ucfirst($t['status']), $t['status'] === 'active' ? 'emerald' : 'rose') ?>
         <div class="relative">

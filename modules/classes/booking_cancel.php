@@ -10,6 +10,10 @@ $stmt = $pdo->prepare("SELECT b.*, c.class_date, c.start_time FROM bookings b JO
 $stmt->execute([$id]);
 $booking = $stmt->fetch();
 
+if ($booking && $booking['status'] !== 'booked') {
+    redirect_with_flash('modules/classes/bookings.php?class_id=' . $classId, 'error', 'This booking is already ' . $booking['status'] . '.');
+}
+
 if ($booking) {
     // BR-12: members may cancel only when >= 2 hours remain before the session.
     // Admin acting on their behalf follows the same business rule here.

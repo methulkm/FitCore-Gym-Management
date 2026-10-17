@@ -24,7 +24,6 @@ $pendingCount = $pdo->query("SELECT COUNT(*) FROM payments WHERE status='pending
 $pageTitle = 'Admin Payment Verification';
 $pageSubtitle = 'Pending verification queue, slip preview, approve/reject (FR-13, FR-17, FR-18, BR-07, BR-08, UC-13)';
 $activeNav = 'payment-verification';
-$ownerTag = 'Asiri';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 

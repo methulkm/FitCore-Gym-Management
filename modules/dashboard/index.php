@@ -34,7 +34,6 @@ for ($i = 5; $i >= 0; $i--) {
 $pageTitle = 'Admin Dashboard & Reports';
 $pageSubtitle = 'Centralized gym metrics, revenue trajectory and operational datasets (FR-16, FR-17, FR-20, FR-21, BR-20)';
 $activeNav = 'dashboard';
-$ownerTag = 'Janith';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
