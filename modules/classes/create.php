@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $duration = (int) ($_POST['duration_minutes'] ?? 60);
     $capacity = (int) ($_POST['capacity'] ?? 0); // BR-11: admin sets capacity per class
 
+
     if ($className === '') $errors[] = 'Class name is required.';
     if (!$trainerId) $errors[] = 'Please choose a trainer.';
     if (!$classDate || !$startTime) $errors[] = 'Date and start time are required.';
@@ -27,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    
     if (!$errors) {
         $pdo->prepare('INSERT INTO classes (class_name, trainer_id, class_date, start_time, duration_minutes, capacity, status) VALUES (?, ?, ?, ?, ?, ?, "scheduled")')
             ->execute([$className, $trainerId, $classDate, $startTime, $duration, $capacity]);

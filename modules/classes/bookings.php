@@ -8,6 +8,8 @@ $stmt->execute([$classId]);
 $class = $stmt->fetch();
 if (!$class) redirect_with_flash('modules/classes/index.php', 'error', 'Class not found.');
 
+
+
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $memberId = (int) ($_POST['member_id'] ?? 0);
