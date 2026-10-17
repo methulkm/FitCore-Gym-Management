@@ -10,10 +10,11 @@ $employees = $pdo->query(
         (SELECT COUNT(*) FROM employee_leave WHERE employee_id = e.employee_id) AS history_count
      FROM employees e ORDER BY e.employee_id DESC'
 
-)->fetchAll();
+)->fetchAll();  // Fetching the employee details from database.
 $total = count($employees);
 $active = count(array_filter($employees, fn($e) => $e['status'] === 'active'));
 $onLeave = count(array_filter($employees, fn($e) => $e['status'] === 'on_leave'));
+
 
 $pageTitle = 'Employee Directory';
 $pageSubtitle = 'Cleaners, receptionists & maintenance staff - shifts, phone numbers, status (FR-04, FR-07, BR-03, BR-17, UC-04)';
