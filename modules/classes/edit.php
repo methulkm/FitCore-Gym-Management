@@ -19,6 +19,9 @@ $bookedCount = (int) $bookedStmt->fetchColumn();
 $errors = [];
 
 
+
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/classes/index.php');
     $className = trim($_POST['class_name'] ?? '');
@@ -46,6 +49,9 @@ $pageTitle = 'Edit Class';
 $activeNav = 'classes';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
+
+
+
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 max-w-xl">
   <?php foreach ($errors as $err): ?>
     <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
