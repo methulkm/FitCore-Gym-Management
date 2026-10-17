@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($_FILES['slip']['error'] !== UPLOAD_ERR_OK) {
         $errors[] = 'Slip upload failed. Please try again.';
     } elseif ($_FILES['slip']['size'] > MAX_SLIP_BYTES) {
-        $errors[] = 'Slip file must be 5MB or smaller (NFR-P04).'; // BR/NFR-P04
+        $errors[] = 'Slip file must be 5MB or smaller.'; // BR/NFR-P04
     } else {
         // NFR-S04: validate real MIME type (not just extension), generate a safe random filename.
         $mime = mime_content_type($_FILES['slip']['tmp_name']);
@@ -94,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $recent = $pdo->query("SELECT p.*, m.full_name, m.member_code FROM payments p JOIN members m ON m.member_id = p.member_id ORDER BY p.payment_id DESC LIMIT 8")->fetchAll();
 
 $pageTitle = 'Payment Submission';
-$pageSubtitle = 'Bank transfer slip upload, reference number, commercial bank details (FR-12, FR-16, FR-18, NFR-P04, UC-12)';
+$pageSubtitle = 'Bank transfer slip upload, reference number, commercial bank details';
 $activeNav = 'payment-submission';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

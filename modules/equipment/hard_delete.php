@@ -14,7 +14,7 @@ $countStmt = $pdo->prepare('SELECT COUNT(*) FROM equipment_maintenance WHERE equ
 $countStmt->execute([$id]);
 
 if ((int) $countStmt->fetchColumn() > 0) {
-    redirect_with_flash('modules/equipment/index.php', 'error', 'Cannot permanently delete ' . $eq['equipment_name'] . ' - it has maintenance history. Set its status to Out of Service instead (BR-18).');
+    redirect_with_flash('modules/equipment/index.php', 'error', 'Cannot permanently delete ' . $eq['equipment_name'] . ' - it has maintenance history. Set its status to Out of Service instead.');
 }
 
 $pdo->prepare('DELETE FROM equipment WHERE equipment_id = ?')->execute([$id]);

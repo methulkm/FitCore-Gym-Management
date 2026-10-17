@@ -12,7 +12,7 @@ $plans = $pdo->query(
 )->fetchAll();
 
 $pageTitle = 'Membership Plans';
-$pageSubtitle = 'Manage 1, 3, 6, and 12-month tier plans, pricing and benefits (FR-13, BR-05, BR-06, UC-10)';
+$pageSubtitle = 'Manage 1, 3, 6, and 12-month tier plans, pricing and benefits';
 $activeNav = 'plans';
 $headerActions = btn('+ Add Plan', base_url('modules/plans/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
@@ -45,14 +45,14 @@ require __DIR__ . '/../../includes/layout_start.php';
       <div class="flex items-center justify-between gap-2 pt-3 border-t <?= $featured ? 'border-white/20' : 'border-slate-100' ?>">
         <a href="<?= e(base_url('modules/plans/edit.php?id=' . $p['plan_id'])) ?>" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-slate-600 hover:text-teal-600' ?>">Edit</a>
         <?php if ($p['status'] === 'active'): ?>
-          <a href="<?= e(csrf_url(base_url('modules/plans/delete.php?id=' . $p['plan_id']))) ?>" onclick="return confirm('Deactivate this plan? (kept for historical subscriptions - BR-06)')" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-amber-600' ?>">Deactivate</a>
+          <a href="<?= e(csrf_url(base_url('modules/plans/delete.php?id=' . $p['plan_id']))) ?>" onclick="return confirm('Deactivate this plan? It stays on existing subscriptions but can no longer be chosen for new ones.')" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-amber-600' ?>">Deactivate</a>
         <?php else: ?>
           <a href="<?= e(csrf_url(base_url('modules/plans/delete.php?id=' . $p['plan_id'] . '&reactivate=1'))) ?>" class="text-sm font-bold <?= $featured ? 'text-white' : 'text-emerald-600' ?>">Reactivate</a>
         <?php endif; ?>
         <?php if ((int) $p['history_count'] === 0): ?>
           <a href="<?= e(csrf_url(base_url('modules/plans/hard_delete.php?id=' . $p['plan_id']))) ?>" onclick="return confirm('Permanently delete this plan? This cannot be undone (allowed only because no member has subscribed to it yet).')" class="text-sm font-bold <?= $featured ? 'text-white underline' : 'text-rose-500 hover:text-rose-700' ?>">Delete</a>
         <?php else: ?>
-          <span title="In use by <?= (int) $p['history_count'] ?> subscription/payment record(s) - Deactivate instead (BR-06)" class="text-sm font-bold cursor-not-allowed <?= $featured ? 'text-white/40' : 'text-slate-300' ?>">Delete</span>
+          <span title="In use by <?= (int) $p['history_count'] ?> subscription/payment record(s) - Deactivate instead" class="text-sm font-bold cursor-not-allowed <?= $featured ? 'text-white/40' : 'text-slate-300' ?>">Delete</span>
         <?php endif; ?>
       </div>
     </div>

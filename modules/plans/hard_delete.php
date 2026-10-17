@@ -18,7 +18,7 @@ $countStmt = $pdo->prepare(
 $countStmt->execute(['id1' => $id, 'id2' => $id]);
 
 if ((int) $countStmt->fetchColumn() > 0) {
-    redirect_with_flash('modules/plans/index.php', 'error', 'Cannot permanently delete "' . $plan['plan_name'] . '" - members have subscriptions or payments on this plan. Use Deactivate instead (BR-06).');
+    redirect_with_flash('modules/plans/index.php', 'error', 'Cannot permanently delete "' . $plan['plan_name'] . '" - members have subscriptions or payments on this plan. Use Deactivate instead.');
 }
 
 $pdo->prepare('DELETE FROM membership_plans WHERE plan_id = ?')->execute([$id]);

@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </form>
 
       <p class="text-xs text-slate-400 mt-6 leading-relaxed">
-        Note (BR-03 / BR-17): cleaners, receptionists and maintenance staff do not receive login accounts &mdash;
+        Note: cleaners, receptionists and maintenance staff do not receive login accounts &mdash;
         their records are managed directly by the Admin.
       </p>
     </div>

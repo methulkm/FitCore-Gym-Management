@@ -22,7 +22,7 @@ $maintenance = count(array_filter($allEquipment, fn($e) => $e['status'] === 'und
 $locations = $pdo->query("SELECT DISTINCT location FROM equipment WHERE location != '' AND location IS NOT NULL ORDER BY location")->fetchAll(PDO::FETCH_COLUMN);
 
 $pageTitle = 'Equipment & Maintenance';
-$pageSubtitle = 'Machine inventory, condition, location and servicing schedule (FR-15, FR-19, BR-18, BR-19, UC-15)';
+$pageSubtitle = 'Machine inventory, condition, location and servicing schedule';
 $activeNav = 'equipment';
 $headerActions = btn('+ Add Equipment', base_url('modules/equipment/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';

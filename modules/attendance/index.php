@@ -17,7 +17,7 @@ $leaves = $pdo->query("SELECT l.*, e.full_name, e.employee_code FROM employee_le
 $pendingLeave = count(array_filter($leaves, fn($l) => $l['status'] === 'pending'));
 
 $pageTitle = 'Staff Attendance & Leave';
-$pageSubtitle = 'Daily check-in / check-out, hours worked & leave requests for cleaners, receptionists and maintenance staff (FR-07, BR-17)';
+$pageSubtitle = 'Daily check-in / check-out, hours worked & leave requests for cleaners, receptionists and maintenance staff';
 $activeNav = 'attendance';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

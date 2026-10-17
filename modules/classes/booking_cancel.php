@@ -21,7 +21,7 @@ if ($booking) {
     $hoursLeft = ($sessionStart - time()) / 3600;
 
     if ($hoursLeft < 2) {
-        redirect_with_flash('modules/classes/bookings.php?class_id=' . $classId, 'error', 'Cannot cancel: less than 2 hours remain before the session (BR-12).');
+        redirect_with_flash('modules/classes/bookings.php?class_id=' . $classId, 'error', 'Cannot cancel: less than 2 hours remain before the session.');
     }
 
     $pdo->prepare("UPDATE bookings SET status = 'cancelled' WHERE booking_id = ?")->execute([$id]);

@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->commit();
 
             $msg = "Member {$code} created.";
-            if ($tempPassword) $msg .= " Temporary login password: {$tempPassword} (share with the member; BR-21 admin-issued).";
+            if ($tempPassword) $msg .= " Temporary login password: {$tempPassword} (share it with the member).";
             redirect_with_flash('modules/members/index.php', 'success', $msg);
         } catch (Exception $e) {
             $pdo->rollBack();

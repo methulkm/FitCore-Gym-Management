@@ -20,7 +20,7 @@ $classes = $stmt->fetchAll();
 $allTrainers = $pdo->query("SELECT trainer_id, full_name FROM trainers WHERE status = 'active' ORDER BY full_name")->fetchAll();
 
 $pageTitle = 'Class / PT Booking Management';
-$pageSubtitle = 'Live capacity, 1-hour PT sessions, conflict prevention & 2-hour cancellation rule (FR-08, FR-11, FR-12, BR-10..BR-14)';
+$pageSubtitle = 'Live capacity, 1-hour PT sessions, conflict prevention & 2-hour cancellation rule';
 $activeNav = 'classes';
 $headerActions = btn('+ Add Class', base_url('modules/classes/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';

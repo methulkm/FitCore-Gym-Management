@@ -43,7 +43,7 @@ if ($statusFilter !== 'all') {
 }
 
 $pageTitle = 'Member Management';
-$pageSubtitle = 'Auto-generated member IDs, CRUD, search & status filters (FR-05, BR-02, UC-02)';
+$pageSubtitle = 'Auto-generated member IDs, CRUD, search & status filters';
 $activeNav = 'members';
 $headerActions = btn('+ Add Member', base_url('modules/members/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';

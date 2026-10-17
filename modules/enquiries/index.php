@@ -21,7 +21,7 @@ $stmt->execute($params);
 $enquiries = $stmt->fetchAll();
 
 $pageTitle = 'Visitor Enquiries';
-$pageSubtitle = 'Messages submitted through the public Contact page (FR-02, UC-18)';
+$pageSubtitle = 'Messages submitted through the public Contact page';
 $activeNav = 'enquiries';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

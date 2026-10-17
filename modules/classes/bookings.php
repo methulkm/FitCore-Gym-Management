@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dup->execute([$classId, $memberId]);
 
         if ($bookedCount->fetchColumn() >= $class['capacity']) {
-            $errors[] = 'This class is already full (BR-13).';
+            $errors[] = 'This class is already full.';
         } elseif ($dup->fetchColumn() > 0) {
             $errors[] = 'This member already has a booking for this class.';
         } else {

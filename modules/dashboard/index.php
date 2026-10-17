@@ -32,7 +32,7 @@ for ($i = 5; $i >= 0; $i--) {
 }
 
 $pageTitle = 'Admin Dashboard & Reports';
-$pageSubtitle = 'Centralized gym metrics, revenue trajectory and operational datasets (FR-16, FR-17, FR-20, FR-21, BR-20)';
+$pageSubtitle = 'Centralized gym metrics, revenue trajectory and operational datasets';
 $activeNav = 'dashboard';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
@@ -48,7 +48,7 @@ require __DIR__ . '/../../includes/layout_start.php';
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
   <h3 class="font-extrabold mb-1">Membership Growth &amp; Revenue Overview</h3>
-  <p class="text-xs text-slate-400 mb-4">Monthly subscription collections and new enrollments (BR-20: simple operational report, no forecasting)</p>
+  <p class="text-xs text-slate-400 mb-4">Monthly subscription collections and new enrollments</p>
   <canvas id="revenueChart" height="90"></canvas>
 </div>
 

@@ -22,7 +22,7 @@ if ($statusFilter !== 'all') {
 }
 
 $pageTitle = 'Subscription & Renewal Management';
-$pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon alerts & renewals (FR-14, FR-15, BR-04, BR-09)';
+$pageSubtitle = 'Track active subscriptions, expiry dates, 7-day expiring-soon alerts & renewals';
 $activeNav = 'subscriptions';
 $headerActions = btn('+ New Subscription', base_url('modules/subscriptions/create.php'));
 require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
@@ -63,15 +63,15 @@ require __DIR__ . '/../../includes/layout_start.php'; //combine the layout
             <?php if ((int) $s['history_count'] === 0): ?>
               <?= delete_link(base_url('modules/subscriptions/hard_delete.php?id=' . $s['subscription_id']), 'Delete this subscription for ' . $s['full_name'] . '? The member will lose this membership record. This cannot be undone.', 'Delete') ?>
             <?php else: ?>
-              <?= delete_disabled('Linked to a verified payment - cannot be deleted (BR-08)') ?>
+              <?= delete_disabled('Linked to a verified payment - cannot be deleted') ?>
             <?php endif; ?>
             <?php if ($dispKey === 'expiring_soon' || $dispKey === 'active'): ?>
               <a href="<?= e(csrf_url(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id']))) ?>"
-                 onclick="return confirm('Renew: extends from current expiry date since membership is still active (BR-09).')"
+                 onclick="return confirm('Renew: extends from current expiry date since membership is still active.')"
                  class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3.5 py-2 rounded-[10px]">Renew</a>
             <?php else: ?>
               <a href="<?= e(csrf_url(base_url('modules/subscriptions/renew.php?id=' . $s['subscription_id']))) ?>"
-                 onclick="return confirm('Renew: since membership has expired, new duration starts today (BR-09).')"
+                 onclick="return confirm('Renew: since membership has expired, new duration starts today.')"
                  class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-bold px-3.5 py-2 rounded-[10px]">Restart</a>
             <?php endif; ?>
           </td>

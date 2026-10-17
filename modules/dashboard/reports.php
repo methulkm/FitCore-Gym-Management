@@ -23,7 +23,7 @@ $counts = [
 ];
 
 $pageTitle = 'Reports & Export';
-$pageSubtitle = 'Simple operational exports per module, CSV format (BR-20: no forecasting/analytics)';
+$pageSubtitle = 'Simple operational exports per module, CSV format';
 $activeNav = 'reports';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>

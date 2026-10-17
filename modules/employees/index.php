@@ -25,7 +25,7 @@ $active = count(array_filter($allEmployees, fn($e) => $e['status'] === 'active')
 $onLeave = count(array_filter($allEmployees, fn($e) => $e['status'] === 'on_leave'));
 
 $pageTitle = 'Employee Directory';
-$pageSubtitle = 'Cleaners, receptionists & maintenance staff - shifts, phone numbers, status (FR-04, FR-07, BR-03, BR-17, UC-04)';
+$pageSubtitle = 'Cleaners, receptionists & maintenance staff - shifts, phone numbers, status';
 $activeNav = 'employees';
 $headerActions = btn('+ Add Employee', base_url('modules/employees/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';
@@ -33,7 +33,7 @@ require __DIR__ . '/../../includes/layout_start.php';
 
 
 <div class="rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-700 text-sm font-medium px-4 py-3">
-  Rule BR-03 / BR-17: cleaners, receptionists and maintenance technicians do <b>not</b> receive system login accounts &mdash; only Admin manages their records here.
+  Note: cleaners, receptionists and maintenance technicians do <b>not</b> receive system login accounts &mdash; only Admin manages their records here.
 </div>
 
 <div class="grid grid-cols-3 gap-4">

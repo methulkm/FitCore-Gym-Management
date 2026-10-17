@@ -23,7 +23,7 @@ $trainers = $stmt->fetchAll();
 $specializations = $pdo->query("SELECT DISTINCT specialization FROM trainers WHERE specialization != '' ORDER BY specialization")->fetchAll(PDO::FETCH_COLUMN);
 
 $pageTitle = 'Trainers & Schedule Management';
-$pageSubtitle = 'Credentials, specializations, working-hours availability and class assignments (FR-06, FR-08, FR-09, FR-10, UC-05, UC-06)';
+$pageSubtitle = 'Credentials, specializations, working-hours availability and class assignments';
 $activeNav = 'trainers';
 $headerActions = btn('+ Add Trainer', base_url('modules/trainers/create.php'));
 require __DIR__ . '/../../includes/layout_start.php';

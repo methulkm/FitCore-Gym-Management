@@ -66,7 +66,7 @@ require __DIR__ . '/../../includes/layout_start.php';
       <input name="full_name" required maxlength="120" value="<?= e(old('full_name', $member['full_name'])) ?>" class="mt-1 w-full border border-slate-200 rounded-[10px] px-3.5 py-2.5 text-sm">
     </div>
     <div>
-      <label class="text-xs font-bold text-slate-500">NIC / Passport <span class="text-slate-300">(locked &mdash; UC-02)</span></label>
+      <label class="text-xs font-bold text-slate-500">NIC / Passport <span class="text-slate-300">(locked)</span></label>
       <input value="<?= e($member['nic_passport']) ?>" disabled class="mt-1 w-full border border-slate-200 bg-slate-50 rounded-[10px] px-3.5 py-2.5 text-sm text-slate-400">
     </div>
     <div>
