@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+ #retrieving equipment maintenance status from the database -->
+
 $history = $pdo->prepare('SELECT * FROM equipment_maintenance WHERE equipment_id = ? ORDER BY maintenance_date DESC');
 $history->execute([$equipmentId]);
 $history = $history->fetchAll();
