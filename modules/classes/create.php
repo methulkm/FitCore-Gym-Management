@@ -12,13 +12,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/classes/create.php');
     $className = trim($_POST['class_name'] ?? '');
     $trainerId = (int) ($_POST['trainer_id'] ?? 0);
-    $classDate = trim($_POST['class_date'] ?? '');
-    $startTime = trim($_POST['start_time'] ?? '');
-    $duration = trim($_POST['duration_minutes'] ?? '');
-    $capacity = trim($_POST['capacity'] ?? '');
+
+    $classDate = $_POST['class_date'] ?? '';
+    $startTime = $_POST['start_time'] ?? '';
+    $duration = (int) ($_POST['duration_minutes'] ?? 60);
+    $capacity = (int) ($_POST['capacity'] ?? 0); // BR-11: admin sets capacity per class
+
+
+    if ($className === '') $errors[] = 'Class name is required.';
+    if (!$trainerId) $errors[] = 'Please choose a trainer.';
+    if (!$classDate || !$startTime) $errors[] = 'Date and start time are required.';
+    if ($capacity <= 0) $errors[] = 'Capacity must be greater than 0.';
+
+
 
     $errors = validate_class_form($pdo, $activeTrainerIds, $className, $trainerId, $classDate, $startTime, $duration, $capacity);
 
+    
     if (!$errors) {
         $pdo->prepare('INSERT INTO classes (class_name, trainer_id, class_date, start_time, duration_minutes, capacity, status) VALUES (?, ?, ?, ?, ?, ?, "scheduled")')
             ->execute([$className, $trainerId, $classDate, $startTime, (int) $duration, (int) $capacity]);
