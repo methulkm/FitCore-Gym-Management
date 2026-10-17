@@ -6,6 +6,8 @@ $trainers = $pdo->query("SELECT trainer_id, full_name FROM trainers WHERE status
 $activeTrainerIds = array_map('intval', array_column($trainers, 'trainer_id'));
 $errors = [];
 
+
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/classes/create.php');
     $className = trim($_POST['class_name'] ?? '');

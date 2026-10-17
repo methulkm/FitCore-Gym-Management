@@ -17,5 +17,7 @@ if ((int) $countStmt->fetchColumn() > 0) {
     redirect_with_flash('modules/classes/index.php', 'error', 'Cannot permanently delete "' . $class['class_name'] . '" - it has member bookings. Use Cancel instead.');
 }
 
+
+
 $pdo->prepare('DELETE FROM classes WHERE class_id = ?')->execute([$id]);
 redirect_with_flash('modules/classes/index.php', 'success', 'Class "' . $class['class_name'] . '" permanently deleted.');

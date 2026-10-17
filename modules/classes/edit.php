@@ -18,6 +18,7 @@ $bookedCount = (int) $bookedStmt->fetchColumn();
 
 $errors = [];
 
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/classes/index.php');
     $className = trim($_POST['class_name'] ?? '');
