@@ -8,7 +8,6 @@ function render_sidebar(string $active): void {
     $groups = [
         [
             'label' => 'USER PORTALS',
-            'owner' => null,
             'items' => [
                 ['key' => 'public',          'label' => 'Public Gym Website',     'href' => base_url('public/index.php'), 'icon' => 'globe'],
                 ['key' => 'member-portal',   'label' => 'Member Dashboard Portal', 'href' => base_url('modules/member-portal/index.php'), 'icon' => 'user'],
@@ -17,56 +16,51 @@ function render_sidebar(string $active): void {
         ],
         [
             'label' => 'ADMIN MANAGEMENT',
-            'owner' => null,
             'items' => [
-                ['key' => 'dashboard', 'label' => '12. Dashboard & Reports', 'href' => base_url('modules/dashboard/index.php'), 'icon' => 'grid', 'owner' => 'Janith'],
+                ['key' => 'dashboard', 'label' => 'Dashboard & Reports', 'href' => base_url('modules/dashboard/index.php'), 'icon' => 'grid'],
+                ['key' => 'reports', 'label' => 'Reports & Export', 'href' => base_url('modules/dashboard/reports.php'), 'icon' => 'doc'],
+                ['key' => 'notifications', 'label' => 'Notifications', 'href' => base_url('modules/notifications/index.php'), 'icon' => 'bell'],
+                ['key' => 'enquiries', 'label' => 'Visitor Enquiries', 'href' => base_url('modules/enquiries/index.php'), 'icon' => 'doc'],
             ],
         ],
         [
-            'label' => 'MEMBERS & AUTH',
-            'owner' => 'Sajatha',
+            'label' => 'MEMBERS',
             'items' => [
-                ['key' => 'login',   'label' => '01. Login Screen',      'href' => base_url('auth/login.php'), 'icon' => 'login'],
-                ['key' => 'members', 'label' => '02. Member Management', 'href' => base_url('modules/members/index.php'), 'icon' => 'users'],
+                ['key' => 'members', 'label' => 'Member Management', 'href' => base_url('modules/members/index.php'), 'icon' => 'users'],
             ],
         ],
         [
             'label' => 'STAFF & ATTENDANCE',
-            'owner' => 'Hasith',
             'items' => [
-                ['key' => 'employees',  'label' => '03. Employee Directory',      'href' => base_url('modules/employees/index.php'), 'icon' => 'id'],
-                ['key' => 'attendance', 'label' => '04. Staff Attendance & Leave','href' => base_url('modules/attendance/index.php'), 'icon' => 'calendar'],
+                ['key' => 'employees',  'label' => 'Employee Directory',      'href' => base_url('modules/employees/index.php'), 'icon' => 'id'],
+                ['key' => 'attendance', 'label' => 'Staff Attendance & Leave','href' => base_url('modules/attendance/index.php'), 'icon' => 'calendar'],
             ],
         ],
         [
             'label' => 'TRAINERS & CLASSES',
-            'owner' => 'Senuka',
             'items' => [
-                ['key' => 'trainers', 'label' => '05. Trainers & Schedule', 'href' => base_url('modules/trainers/index.php'), 'icon' => 'award'],
-                ['key' => 'classes',  'label' => '06. Class / PT Booking',  'href' => base_url('modules/classes/index.php'), 'icon' => 'clock'],
+                ['key' => 'trainers', 'label' => 'Trainers & Schedule', 'href' => base_url('modules/trainers/index.php'), 'icon' => 'award'],
+                ['key' => 'classes',  'label' => 'Class / PT Booking',  'href' => base_url('modules/classes/index.php'), 'icon' => 'clock'],
             ],
         ],
         [
             'label' => 'PLANS & RENEWALS',
-            'owner' => 'Methul',
             'items' => [
-                ['key' => 'plans',         'label' => '07. Membership Plans',      'href' => base_url('modules/plans/index.php'), 'icon' => 'layers'],
-                ['key' => 'subscriptions', 'label' => '08. Subscriptions & Renewal','href' => base_url('modules/subscriptions/index.php'), 'icon' => 'refresh'],
+                ['key' => 'plans',         'label' => 'Membership Plans',      'href' => base_url('modules/plans/index.php'), 'icon' => 'layers'],
+                ['key' => 'subscriptions', 'label' => 'Subscriptions & Renewal','href' => base_url('modules/subscriptions/index.php'), 'icon' => 'refresh'],
             ],
         ],
         [
             'label' => 'PAYMENTS',
-            'owner' => 'Asiri',
             'items' => [
-                ['key' => 'payment-submission',  'label' => '09. Payment Submission',   'href' => base_url('modules/payments/submit.php'), 'icon' => 'card'],
-                ['key' => 'payment-verification', 'label' => '10. Payment Verification', 'href' => base_url('modules/payments/index.php'), 'icon' => 'doc'],
+                ['key' => 'payment-submission',  'label' => 'Payment Submission',   'href' => base_url('modules/payments/submit.php'), 'icon' => 'card'],
+                ['key' => 'payment-verification', 'label' => 'Payment Verification', 'href' => base_url('modules/payments/index.php'), 'icon' => 'doc'],
             ],
         ],
         [
             'label' => 'EQUIPMENT',
-            'owner' => 'Janith',
             'items' => [
-                ['key' => 'equipment', 'label' => '11. Equipment & Maintenance', 'href' => base_url('modules/equipment/index.php'), 'icon' => 'tool'],
+                ['key' => 'equipment', 'label' => 'Equipment & Maintenance', 'href' => base_url('modules/equipment/index.php'), 'icon' => 'tool'],
             ],
         ],
     ];
@@ -79,7 +73,7 @@ function render_sidebar(string $active): void {
         $groups = array_slice($groups, 0, 1);
     }
     ?>
-    <aside class="w-[260px] shrink-0 bg-white border-r border-slate-200 min-h-screen flex flex-col">
+    <aside id="app-sidebar" class="w-[260px] shrink-0 bg-white border-r border-slate-200 min-h-screen flex flex-col">
         <div class="px-6 py-5 border-b border-slate-100">
             <a href="<?= e(base_url('public/index.php')) ?>" class="flex items-center gap-3">
                 <span class="w-10 h-10 rounded-[10px] bg-gradient-to-br from-teal-600 to-teal-400 flex items-center justify-center text-white font-extrabold">FC</span>
@@ -94,9 +88,6 @@ function render_sidebar(string $active): void {
                 <div>
                     <div class="px-3 mb-1.5 flex items-center justify-between">
                         <span class="text-[10px] font-bold tracking-widest text-slate-400"><?= e($group['label']) ?></span>
-                        <?php if ($group['owner']): ?>
-                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-500"><?= e(strtoupper($group['owner'])) ?></span>
-                        <?php endif; ?>
                     </div>
                     <?php foreach ($group['items'] as $item):
                         $isActive = $item['key'] === $active; ?>
@@ -104,9 +95,6 @@ function render_sidebar(string $active): void {
                            class="flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] text-[13px] font-medium mb-0.5 transition <?= $isActive ? 'bg-teal-50 text-teal-700 font-bold' : 'text-slate-600 hover:bg-slate-50' ?>">
                             <span class="w-4 h-4 shrink-0"><?= sidebar_icon($item['icon']) ?></span>
                             <span class="flex-1"><?= e($item['label']) ?></span>
-                            <?php if (!empty($item['owner'])): ?>
-                                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-400"><?= e(strtoupper($item['owner'])) ?></span>
-                            <?php endif; ?>
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -114,12 +102,15 @@ function render_sidebar(string $active): void {
         </nav>
         <?php if ($user): ?>
         <div class="border-t border-slate-100 p-4 flex items-center gap-3">
-            <span class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold"><?= e(strtoupper(substr($user['name'] ?? $user['email'], 0, 2))) ?></span>
+            <span class="w-9 h-9 rounded-full bg-teal-600 text-white flex items-center justify-center text-xs font-bold shrink-0"><?= e(strtoupper(substr($user['name'] ?? $user['email'], 0, 2))) ?></span>
             <span class="flex-1 min-w-0">
                 <span class="block text-sm font-semibold text-slate-900 truncate"><?= e($user['name'] ?? $user['email']) ?></span>
                 <span class="block text-xs text-slate-400 capitalize"><?= e($user['role']) ?></span>
             </span>
-            <a href="<?= e(base_url('auth/logout.php')) ?>" title="Log out" class="text-slate-400 hover:text-rose-500">
+            <a href="<?= e(base_url('account/change_password.php')) ?>" title="Change password" class="text-slate-400 hover:text-teal-600 shrink-0">
+                <span class="w-4 h-4 block"><?= sidebar_icon('key') ?></span>
+            </a>
+            <a href="<?= e(base_url('auth/logout.php')) ?>" title="Log out" class="text-slate-400 hover:text-rose-500 shrink-0">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
             </a>
         </div>
@@ -145,6 +136,9 @@ function sidebar_icon(string $name): string {
         'card'   => '<rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
         'doc'    => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
         'tool'   => '<path d="M14.7 6.3a4 4 0 1 1-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 1 1 5.4-5.4z"/>',
+        'bell'   => '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+        'search' => '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+        'key'    => '<circle cx="8" cy="15" r="4"/><path d="M10.5 12.5 21 2M17 6l3 3M14 9l2.5 2.5"/>',
     ];
     $d = $paths[$name] ?? $paths['grid'];
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full">' . $d . '</svg>';

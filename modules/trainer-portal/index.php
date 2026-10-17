@@ -23,6 +23,7 @@ $activeNav = 'trainer-portal';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
+
 <div class="grid grid-cols-2 gap-4">
   <?= kpi_card('Upcoming Classes', (string) count($classes)) ?>
   <?= kpi_card('Specialization', $trainer['specialization'] ?: '-') ?>
@@ -45,7 +46,10 @@ require __DIR__ . '/../../includes/layout_start.php';
     </div>
   </div>
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
-    <h3 class="font-extrabold mb-3">My Availability</h3>
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-extrabold">My Availability</h3>
+      <?= btn('Manage', base_url('modules/trainer-portal/availability.php'), 'ghost') ?>
+    </div>
     <div class="space-y-2">
       <?php foreach ($availability as $a): ?>
         <div class="flex justify-between text-sm border-b border-slate-100 pb-2">

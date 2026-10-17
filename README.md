@@ -11,6 +11,7 @@ PHP (native, no framework) + MySQL (via XAMPP) + Tailwind CSS.
 3. Start **Apache** and **MySQL** from the XAMPP Control Panel.
 4. Import the database: open phpMyAdmin (`http://localhost/phpmyadmin`) → Import → choose `database/schema.sql` → Go.
    (This creates the `fitcore` database with all tables and demo data.)
+   - Already imported an older copy and want to keep your data? Import `database/migration_2.sql` and then `database/migration_3.sql` instead (each one only once).
 5. Visit `http://localhost/fitcore/auth/login.php` in your browser.
    - Demo admin login: `admin@fitcore.lk` / `Admin@123`
 

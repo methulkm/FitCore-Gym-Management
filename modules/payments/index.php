@@ -8,10 +8,12 @@ $sql = "SELECT p.*, m.full_name, m.member_code, pl.plan_name, pl.duration_months
         JOIN members m ON m.member_id = p.member_id
         JOIN membership_plans pl ON pl.plan_id = p.plan_id";
 $params = [];
+
 if ($statusFilter !== 'all') {
     $sql .= ' WHERE p.status = ?';
     $params[] = $statusFilter;
 }
+
 $sql .= ' ORDER BY p.payment_id DESC';
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -20,9 +22,8 @@ $payments = $stmt->fetchAll();
 $pendingCount = $pdo->query("SELECT COUNT(*) FROM payments WHERE status='pending'")->fetchColumn();
 
 $pageTitle = 'Admin Payment Verification';
-$pageSubtitle = 'Pending verification queue, slip preview, approve/reject (FR-13, FR-17, FR-18, BR-07, BR-08, UC-13)';
+$pageSubtitle = 'Pending verification queue, slip preview, approve/reject';
 $activeNav = 'payment-verification';
-$ownerTag = 'Asiri';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 
@@ -74,7 +75,7 @@ require __DIR__ . '/../../includes/layout_start.php';
           </td>
           <td class="px-5 py-3 text-right space-x-2 whitespace-nowrap">
             <?php if ($p['status'] === 'pending'): ?>
-              <a href="<?= e(base_url('modules/payments/approve.php?id=' . $p['payment_id'])) ?>" onclick="return confirm('Approve this payment? This activates/extends the membership (BR-08/BR-09).')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-[10px]">Approve</a>
+              <a href="<?= e(csrf_url(base_url('modules/payments/approve.php?id=' . $p['payment_id']))) ?>" onclick="return confirm('Approve this payment? This activates/extends the membership.')" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-3 py-2 rounded-[10px]">Approve</a>
               <a href="<?= e(base_url('modules/payments/reject.php?id=' . $p['payment_id'])) ?>" class="bg-white border border-slate-200 hover:bg-slate-50 text-rose-500 text-xs font-bold px-3 py-2 rounded-[10px]">Reject</a>
             <?php endif; ?>
           </td>

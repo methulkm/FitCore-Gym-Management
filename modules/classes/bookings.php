@@ -10,9 +10,21 @@ if (!$class) redirect_with_flash('modules/classes/index.php', 'error', 'Class no
 
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_verify('modules/classes/bookings.php?class_id=' . $classId);
     $memberId = (int) ($_POST['member_id'] ?? 0);
-    if (!$memberId) {
-        $errors[] = 'Please choose a member.';
+    $memberStmt = $pdo->prepare("SELECT member_id FROM members WHERE member_id = ? AND account_status = 'active'");
+    $memberStmt->execute([$memberId]);
+    $activeSub = $pdo->prepare("SELECT COUNT(*) FROM subscriptions WHERE member_id = ? AND status = 'active' AND expiry_date >= ?");
+    $activeSub->execute([$memberId, $class['class_date']]);
+
+    if (!$memberId || !$memberStmt->fetchColumn()) {
+        $errors[] = 'Please choose an active member.';
+    } elseif ($class['status'] !== 'scheduled') {
+        $errors[] = 'Bookings cannot be added to a ' . $class['status'] . ' class.';
+    } elseif (strtotime($class['class_date'] . ' ' . $class['start_time']) <= time()) {
+        $errors[] = 'This class has already started, so it can no longer be booked.';
+    } elseif ($activeSub->fetchColumn() == 0) {
+        $errors[] = 'This member does not have a membership that is active on the class date.';
     } else {
         // BR-13: prevent booking a full class, and prevent the same member double-booking this class.
         $bookedCount = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE class_id = ? AND status = 'booked'");
@@ -21,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dup->execute([$classId, $memberId]);
 
         if ($bookedCount->fetchColumn() >= $class['capacity']) {
-            $errors[] = 'This class is already full (BR-13).';
+            $errors[] = 'This class is already full.';
         } elseif ($dup->fetchColumn() > 0) {
             $errors[] = 'This member already has a booking for this class.';
         } else {
@@ -39,7 +51,6 @@ $bookings = $bookings->fetchAll();
 
 $pageTitle = 'Bookings - ' . $class['class_name'];
 $activeNav = 'classes';
-$ownerTag = 'Senuka';
 require __DIR__ . '/../../includes/layout_start.php';
 ?>
 <div class="grid lg:grid-cols-2 gap-6">
@@ -50,10 +61,11 @@ require __DIR__ . '/../../includes/layout_start.php';
       <div class="rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-sm font-medium px-4 py-3 mb-4"><?= e($err) ?></div>
     <?php endforeach; ?>
     <form method="post" class="flex gap-2">
+      <?= csrf_field() ?>
       <select name="member_id" required class="flex-1 border border-slate-200 rounded-[10px] px-3 py-2.5 text-sm">
         <option value="">Select member</option>
         <?php foreach ($members as $m): ?>
-          <option value="<?= (int) $m['member_id'] ?>"><?= e($m['member_code'] . ' - ' . $m['full_name']) ?></option>
+          <option value="<?= (int) $m['member_id'] ?>"<?= selected($m['member_id'], old('member_id')) ?>><?= e($m['member_code'] . ' - ' . $m['full_name']) ?></option>
         <?php endforeach; ?>
       </select>
       <button class="bg-teal-600 hover:bg-teal-700 text-white text-sm font-bold px-4 py-2.5 rounded-[10px] whitespace-nowrap">Book</button>
@@ -68,7 +80,7 @@ require __DIR__ . '/../../includes/layout_start.php';
           <div class="flex items-center gap-2">
             <?= status_badge(ucfirst($b['status']), match ($b['status']) { 'booked' => 'emerald', 'completed' => 'indigo', default => 'rose' }) ?>
             <?php if ($b['status'] === 'booked'): ?>
-              <a href="<?= e(base_url('modules/classes/booking_cancel.php?id=' . $b['booking_id'] . '&class_id=' . $classId)) ?>" class="text-rose-500 text-xs font-bold">Cancel</a>
+              <a href="<?= e(csrf_url(base_url('modules/classes/booking_cancel.php?id=' . $b['booking_id'] . '&class_id=' . $classId))) ?>" class="text-rose-500 text-xs font-bold">Cancel</a>
             <?php endif; ?>
           </div>
         </div>
