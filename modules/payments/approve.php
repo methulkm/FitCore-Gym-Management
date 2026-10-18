@@ -36,7 +36,7 @@ try {
             ->execute([$payment['member_id'], $payment['plan_id'], $startDate, $newExpiry]);
         $subscriptionId = $pdo->lastInsertId();
     }
-
+// update the status
     $pdo->prepare('UPDATE payments SET status = "approved", subscription_id = ?, verified_by = ?, verified_at = NOW() WHERE payment_id = ?')
         ->execute([$subscriptionId, current_user()['user_id'], $id]);
 
