@@ -4,7 +4,7 @@ require_role(['admin']);
 
 $employees = $pdo->query("SELECT employee_id, employee_code, full_name FROM employees WHERE status != 'inactive' ORDER BY full_name")->fetchAll();
 $errors = [];
-
+// leave create
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify('modules/attendance/leave_create.php');
     $employeeId = (int) ($_POST['employee_id'] ?? 0);

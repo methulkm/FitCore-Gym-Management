@@ -19,10 +19,13 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $employees = $stmt->fetchAll();
 
+
 $allEmployees = $pdo->query('SELECT status FROM employees')->fetchAll();
 $total = count($allEmployees);
 $active = count(array_filter($allEmployees, fn($e) => $e['status'] === 'active'));
 $onLeave = count(array_filter($allEmployees, fn($e) => $e['status'] === 'on_leave'));
+
+
 
 $pageTitle = 'Employee Directory';
 $pageSubtitle = 'Cleaners, receptionists & maintenance staff - shifts, phone numbers, status';
